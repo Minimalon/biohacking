@@ -7,16 +7,21 @@ from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql import func
 
 import config
-from core.database.enums.checklists import CheckListContentActions
+from core.database.enums.checklists import EnumCheckListContentActions
 
 engine = create_async_engine(config.db_cfg.get_url())
 Base = declarative_base()
+
+
+def admins():
+    return [ClientRolesEnum.SUPERADMIN, ClientRolesEnum.ADMIN]
 
 
 class ClientRolesEnum(enum.Enum):
     CLIENT = 'Клиент'
     EMPLOYEE = 'Сотрудник'
     ADMIN = 'Админ'
+    BLOGER = 'Блогер'
     SUPERADMIN = 'СуперАдмин'
 
 
@@ -86,9 +91,11 @@ class ChecklistMenu(Base):
     __tablename__ = 'checklistmenu'
     id = Column(BigInteger, primary_key=True)
     name = Column(String(50), nullable=False)
-    description = Column(String(50), nullable=False)
+    description = Column(String(50))
 
-    contents = relationship('ChecklistContent', back_populates='menu', uselist=True)
+    contents = relationship('ChecklistContent', back_populates='menu',
+                            uselist=True,
+                            cascade="delete, delete-orphan")
 
 
 class ChecklistContent(Base):
@@ -99,17 +106,19 @@ class ChecklistContent(Base):
     page = Column(BigInteger, nullable=False)
     checklistmenuid = Column(BigInteger, ForeignKey('checklistmenu.id'), nullable=False)
 
-    actions = relationship('ChecklistContentAction', back_populates='content', uselist=True)
+    action = relationship('ChecklistContentAction', back_populates='content',
+                          cascade="delete, delete-orphan",
+                          uselist=False)
     menu = relationship("ChecklistMenu", back_populates="contents", uselist=False)
 
 
 class ChecklistContentAction(Base):
     __tablename__ = 'checklistcontentaction'
     id = Column(BigInteger, primary_key=True)
-    action = Column(Enum(CheckListContentActions), default=CheckListContentActions.NONE, nullable=False)
+    action = Column(Enum(EnumCheckListContentActions), default=EnumCheckListContentActions.NONE, nullable=False)
     checklistcontentid = Column(BigInteger, ForeignKey('checklistcontent.id'), nullable=False)
 
-    content = relationship("ChecklistContent", back_populates="actions", uselist=False)
+    content = relationship("ChecklistContent", back_populates="action", uselist=False)
 
 
 async def init_models():

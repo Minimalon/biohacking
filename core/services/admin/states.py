@@ -7,7 +7,8 @@ class CreateUserState(StatesGroup):
 
 
 class SetAdminState(StatesGroup):
-    phone = State()
+    enter_phone = State()
+    accept_phone = State()
 
 
 class CreatePostState(StatesGroup):

@@ -81,6 +81,11 @@ class ForemanConfig(BaseConfig):
     USERNAME_18: str
     PASSWORD_18: str
 
+class BotConfig(BaseConfig):
+    model_config = SettingsConfigDict(env_prefix='BOT_')
+
+    develope_mode: bool = Field(default=False)
+
 
 cs_cfg = CashServerConfig()
 db_cfg = DatabaseConfig()
@@ -88,3 +93,4 @@ tg_cfg = TelegramConfig()
 redis_cfg = RedisConfig()
 foreman_cfg = ForemanConfig()
 artixcash_db_cfg = ArtixCashDatabaseConfig()
+bot_cfg = BotConfig()

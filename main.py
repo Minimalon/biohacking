@@ -2,15 +2,15 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.types import BotCommandScopeDefault
 
-from core.commands.admins import get_admin_commands
-from core.commands.client import get_commands_clients
-from core.commands.employee import get_commands_employee
+from core.commands.commands import set_commands, client_commands
 from core.database.model import init_models
 from config import *
 from core.loggers.make_loggers import create_loggers
 from core.middlewares.add_var import CallBackMiddleware, MessageMiddleware, ErrorEventMiddleware
 from core.services.admin.handlers.routers import admin_routers
+from core.services.checklist.handlers.routers import checklist_routers
 from core.services.referals.handlers.routers import referals_routers
 from core.services.start.handlers.routers import routers as start_routers
 from core.services.test.handlers.routers import test_routers
@@ -27,10 +27,8 @@ async def main():
               ))
     storage = RedisStorage.from_url(await RedisConfig().url())
     dp = Dispatcher(storage=storage)
-
-    await get_commands_clients(bot)
-    await get_admin_commands(bot)
-    await get_commands_employee(bot)
+    await bot.set_my_commands(client_commands, BotCommandScopeDefault())
+    await set_commands(bot)
 
     # Мидлвари
     dp.callback_query.middleware(CallBackMiddleware())
@@ -46,6 +44,9 @@ async def main():
 
     # Тесты команд
     dp.include_routers(*test_routers)
+
+    # Команда /checklist
+    dp.include_router(*checklist_routers)
 
     await dp.start_polling(bot)
 
