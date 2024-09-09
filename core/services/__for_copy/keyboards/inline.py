@@ -1,5 +1,6 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from .. import callback_data as cb_data
 
 # def kb_sex() -> InlineKeyboardMarkup:
 #     keyboard = InlineKeyboardBuilder()
