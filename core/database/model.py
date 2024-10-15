@@ -82,11 +82,22 @@ class Referrals(Base):
     __tablename__ = 'referrals'
     id = Column(BigInteger, primary_key=True)
     date = Column(DateTime(timezone=True), server_default=func.now())
-    user_id = Column(BigInteger, ForeignKey('clients.user_id'), nullable=False)
-    ref_id = Column(BigInteger, ForeignKey('clients.user_id'), nullable=False)
-    client = relationship("Clients", foreign_keys=[user_id], back_populates="referrals")
-    referrer = relationship("Clients", foreign_keys=[ref_id], back_populates="referred_by")
+    user_id = Column(BigInteger, ForeignKey('clients.user_id', ondelete='CASCADE'), nullable=False)
+    ref_id = Column(BigInteger, ForeignKey('clients.user_id', ondelete='CASCADE'), nullable=False)
 
+
+    client = relationship(
+        "Clients",
+        foreign_keys=[user_id],
+        back_populates="referrals",
+        passive_deletes=True
+    )
+    referrer = relationship(
+        "Clients",
+        foreign_keys=[ref_id],
+        back_populates="referred_by",
+        passive_deletes=True
+    )
 
 
 
