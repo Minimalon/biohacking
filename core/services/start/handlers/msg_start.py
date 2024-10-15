@@ -151,6 +151,7 @@ async def get_sex(call: CallbackQuery, state: FSMContext, log: Logger, callback_
     await call.message.delete()
     sex_name = 'Мужчина' if callback_data.sex == 0 else 'Женщина'
     log.info(f"Выбрал пол '{sex_name}'")
+
     cs = CS()
     client = await db.get_client(call.from_user.id)
     cs_client = Client(
@@ -167,14 +168,14 @@ async def get_sex(call: CallbackQuery, state: FSMContext, log: Logger, callback_
     )
     await cs.create_client(cs_client)
     await cs.create_card(cs_card)
+
+    cs_client = await cs.get_client_by_id(call.from_user.id)
+    cs_client_card = await cs.get_card_by_id(call.from_user.id)
+    cs_card_balance = await cs.get_card_balance(call.from_user.id)
     profile = Profile(
         cs_client=cs_client,
-        cs_card=cs_card,
-        cs_card_balance=CardBalance(
-            number=call.from_user.id,
-            accountNumber=call.from_user.id,
-            balance=0
-        )
+        cs_card=cs_client_card,
+        cs_card_balance=cs_card_balance
     )
 
     if data.get('deeplink'):

@@ -111,14 +111,16 @@ async def test():
     db = Database()
     # clcontent = await db.next_page_checlist_content(1, page=1)
     # print(clcontent.action)
-    clients = await db.get_all_clients()
-    for client in clients:
-        for role in client.role:
-            print(role.rolename)
+    # clients = await db.get_all_clients()
+    # for client in clients:
+    #     for role in client.role:
+    #         print(role.rolename)
 
     # await db.add_checklist_menu('Открытие смены')
     # await db.add_checklist_content('Тест <b>123</b>', 1, 1, )
     # await db.add_checklist_action(EnumCheckListContentActions.NONE, 1)
+
+    await db.delete_client(5263751490)
 
 
 if __name__ == '__main__':

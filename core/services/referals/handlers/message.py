@@ -42,7 +42,7 @@ async def ref_menu(message: Message, log: Logger):
 async def create_ref_link(call: CallbackQuery, log: Logger, db: Database):
     log.button('Создать реферальную ссылку')
     client = await db.get_client(call.from_user.id)
-    if not client.role.rolename in [ClientRolesEnum.ADMIN, ClientRolesEnum.SUPERADMIN, ClientRolesEnum.EMPLOYEE]:
+    if not client.role.rolename in [ClientRolesEnum.ADMIN, ClientRolesEnum.SUPERADMIN, ClientRolesEnum.EMPLOYEE, ClientRolesEnum.CLIENT]:
         await call.message.answer(texts.no_access)
         log.error('Пользователь не является админом')
         return
