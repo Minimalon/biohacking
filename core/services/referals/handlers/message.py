@@ -54,5 +54,5 @@ async def create_ref_link(call: CallbackQuery, log: Logger, db: Database):
         photo=BufferedInputFile(
             await get_buffer_qr(link),
             filename=f"{call.from_user.id}.png"),
-        caption=link
+        caption=f'<code>{link}</code>',
     )
