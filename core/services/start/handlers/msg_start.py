@@ -62,7 +62,8 @@ async def deeplink_start(message: Message, command: CommandObject, state: FSMCon
     await message.bot.send_photo(
         message.chat.id,
         photo=FSInputFile(await generate_qr(message.from_user.id)),
-        caption=await texts.profile(profile)
+        caption=await texts.profile(profile),
+        reply_markup=inline.kb_start()
     )
     await state.update_data(deeplink=deeplink_args)
 
@@ -94,7 +95,8 @@ async def start(message: Message, state: FSMContext, log: Logger, db: Database):
     await message.bot.send_photo(
         message.chat.id,
         photo=FSInputFile(await generate_qr(message.from_user.id)),
-        caption=await texts.profile(profile)
+        caption=await texts.profile(profile),
+        reply_markup=inline.kb_start()
     )
 
 
@@ -185,3 +187,24 @@ async def get_sex(call: CallbackQuery, state: FSMContext, log: Logger, callback_
         caption=await texts.profile(profile)
     )
     await state.clear()
+
+
+@router.callback_query(F.data == 'update_start_menu')
+async def update_start_menu(call: CallbackQuery, state: FSMContext, log: Logger):
+    log.button("Обновить информацию о карте")
+    cs = CS()
+    cs_client = await cs.get_client_by_id(call.from_user.id)
+    cs_client_card = await cs.get_card_by_id(call.from_user.id)
+    cs_card_balance = await cs.get_card_balance(call.from_user.id)
+    profile = Profile(
+        cs_client=cs_client,
+        cs_card=cs_client_card,
+        cs_card_balance=cs_card_balance
+    )
+    await call.message.delete()
+    await call.message.bot.send_photo(
+        call.message.chat.id,
+        photo=FSInputFile(await generate_qr(call.from_user.id)),
+        caption=await texts.profile(profile),
+        reply_markup=inline.kb_start()
+    )

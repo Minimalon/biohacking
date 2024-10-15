@@ -14,3 +14,4 @@ class SetAdminState(StatesGroup):
 class CreatePostState(StatesGroup):
     text = State()
     prepared = State()
+

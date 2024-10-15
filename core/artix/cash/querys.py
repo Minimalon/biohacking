@@ -204,15 +204,3 @@ class Artix:
             return int(max_code) + 1
 
 
-if __name__ == '__main__':
-    ar = Artix('10.8.20.42')
-    print(asyncio.run(ar.select_mol()))
-
-    # ar.update_name_actionpanelitem('test', 45)
-    # for acp, aci, acpr in ar.get_actionpanelitems():
-    #     print(acp.__dict__)
-    #     print(aci.__dict__)
-    #     print(acpr.__dict__)
-    #     # print(hotkey.__dict__)
-    #     # print(hotkeyinvent.__dict__)
-    #     print('-' * 10)

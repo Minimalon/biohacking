@@ -9,3 +9,10 @@ def kb_sex() -> InlineKeyboardMarkup:
     keyboard.button(text='Женщина', callback_data=Sex(sex=1))
     keyboard.adjust(2)
     return keyboard.as_markup()
+
+
+def kb_start() -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.button(text='Обновить информацию🔄', callback_data='update_start_menu')
+    keyboard.adjust(1)
+    return keyboard.as_markup()
