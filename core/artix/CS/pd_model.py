@@ -42,7 +42,3 @@ class CardInfo(BaseModel):
     idclient: int | str  = Field('', title='Идентификатор клиента')
     number: int | str = Field('', title='Номер карты')
     blocked: int = Field(0, title='Заблокирована')
-
-if __name__ == '__main__':
-    c = Client(idclient='123', name='Иванов Иван Иванович')
-    print()

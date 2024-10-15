@@ -46,7 +46,7 @@ async def main():
     dp.include_routers(*test_routers)
 
     # Команда /checklist
-    dp.include_router(*checklist_routers)
+    dp.include_routers(*checklist_routers)
 
     await dp.start_polling(bot)
 

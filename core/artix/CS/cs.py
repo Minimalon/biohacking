@@ -92,17 +92,3 @@ class CS:
         if resp:
             return CardInfo.model_validate_json(resp)
 
-
-async def test():
-    cs = CS()
-    client = Client(idclient='123123', name='Иванов Иван Иванович', phonenumber='123123')
-    cs_card = CardInfo(
-            idcard=5263751490,
-            number=5263751490,
-            idclient=5263751490
-        )
-    print(await cs.create_card(cs_card))
-
-
-if __name__ == '__main__':
-    asyncio.run(test())

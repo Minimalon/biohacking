@@ -1,3 +1,5 @@
+from core.database.enums.checklists import EnumCheckListContentActions
+from core.database.model import ChecklistContent, CheckListComplete
 from core.services.start.pd_models import Profile
 
 error_head = f"➖➖➖➖🚨ОШИБКА🚨➖➖➖➖\n"
@@ -23,3 +25,23 @@ async def profile(profile: Profile) -> str:
             f'<b>Номер карты</b>: <code>{profile.cs_card.idcard}</code>\n'
             f'<b>Баланс</b>: <code>{profile.cs_card_balance.balance / 100} руб</code>\n'
             )
+
+async def history_complete_question(content: ChecklistContent) -> str:
+    return (
+        f'Страница: #️⃣<code>{content.page}</code>\n'
+        f'➖➖➖❓<b><u>ВОПРОС</u></b>❓➖➖➖\n\n'
+        f'{content.content}\n'
+    )
+async def history_complete_answer(cl: CheckListComplete, content: ChecklistContent) -> str:
+    if cl.action == EnumCheckListContentActions.NONE:
+        return (
+            f'Страница: #️⃣<code>{content.page}</code>\n'
+            f'➖➖➖❗️<b><u>ОТВЕТ</u></b>❗️➖➖➖\n'
+            f'✅\n'
+        )
+    else:
+        return (
+            f'Страница: #️⃣<code>{content.page}</code>\n'
+            f'➖➖➖❗️<b><u>ОТВЕТ</u></b>❗️➖➖➖\n\n'
+            f'{cl.text}\n'
+        )

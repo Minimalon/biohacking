@@ -5,6 +5,7 @@ from sqlalchemy import update
 
 from core.database.model import *
 import config
+from core.services.checklist.pd_models.pd_admin import CLCreateMenu
 
 
 class Database:
@@ -48,6 +49,15 @@ class Database:
                 )
             )
             return result.scalars().first()
+    async def get_clients(self, user_id: list[int]) -> list[Clients] | None:
+        async with self.AsyncSession() as session:
+            result = await session.execute(
+                select(Clients).where(Clients.user_id.in_(user_id)).
+                options(
+                    joinedload(Clients.role),
+                )
+            )
+            return result.scalars().all()
 
     async def get_all_clients(self) -> list[Clients]:
         async with self.AsyncSession() as session:
@@ -56,7 +66,7 @@ class Database:
                     joinedload(Clients.role),
                 )
             )
-            return result.scalars().all()
+            return result.unique().scalars().all()
 
     async def get_client_by_phone(self, phone_number: str) -> Clients | None:
         async with self.AsyncSession() as session:
@@ -95,76 +105,20 @@ class Database:
             await session.execute(update(ClientRoles).where(ClientRoles.user_id == user_id).values(rolename=rolename))
             await session.commit()
 
-    async def get_checklist_menus(self) -> list[ChecklistMenu]:
-        async with self.AsyncSession() as session:
-            result = await session.execute(select(ChecklistMenu))
-            return result.scalars().all()
-
-    async def get_checklist_menu(self, menu_id: int) -> ChecklistMenu | None:
-        async with self.AsyncSession() as session:
-            result = await session.execute(select(ChecklistMenu).where(ChecklistMenu.id == menu_id))
-            return result.scalars().first()
-
-    async def add_checklist_menu(self, name: str, description: str = '') -> None:
-        async with self.AsyncSession() as session:
-            session.add(ChecklistMenu(name=name, description=description))
-            await session.commit()
-
-    async def get_checklist_action(self, action_id: int) -> ChecklistContentAction | None:
-        async with self.AsyncSession() as session:
-            result = await session.execute(select(ChecklistContentAction).where(ChecklistContentAction.id == action_id))
-            return result.scalars().first()
-
-    async def add_checklist_action(
-            self,
-            action: EnumCheckListContentActions,
-            checklistcontentid: int,
-    ) -> None:
-        async with self.AsyncSession() as session:
-            session.add(ChecklistContentAction(action=action, checklistcontentid=checklistcontentid))
-            await session.commit()
-
-    async def next_page_checlist_content(self, menu_id: int, page: int = 1) -> ChecklistContent | None:
-        async with self.AsyncSession() as session:
-            result = await session.execute(
-                select(ChecklistContent)
-                .options(
-                    joinedload(ChecklistContent.menu),
-                    joinedload(ChecklistContent.action),
-                )
-                .where(ChecklistContent.checklistmenuid == menu_id, ChecklistContent.page == page)
-            )
-            return result.scalars().first()
-
-    async def add_checklist_content(
-            self,
-            content: str,
-            page: int,
-            checklistmenuid: int,
-            photo_path: str = '',
-    ) -> None:
-        async with self.AsyncSession() as session:
-            session.add(ChecklistContent(
-                content=content,
-                page=page,
-                photo_path=photo_path,
-                checklistmenuid=checklistmenuid,
-            ))
-            await session.commit()
-
-    async def update_role_client(self, user_id: int, rolename: ClientRolesEnum = ClientRolesEnum.CLIENT) -> None:
-        async with self.AsyncSession() as session:
-            await session.execute(update(ClientRoles).where(ClientRoles.user_id == user_id).values(rolename=rolename))
-            await session.commit()
 
 
 async def test():
     db = Database()
     # clcontent = await db.next_page_checlist_content(1, page=1)
     # print(clcontent.action)
-    await db.add_checklist_menu('Открытие смены')
-    await db.add_checklist_content('Тест <b>123</b>', 1, 1, )
-    await db.add_checklist_action(EnumCheckListContentActions.NONE, 1)
+    clients = await db.get_all_clients()
+    for client in clients:
+        for role in client.role:
+            print(role.rolename)
+
+    # await db.add_checklist_menu('Открытие смены')
+    # await db.add_checklist_content('Тест <b>123</b>', 1, 1, )
+    # await db.add_checklist_action(EnumCheckListContentActions.NONE, 1)
 
 
 if __name__ == '__main__':

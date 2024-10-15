@@ -20,6 +20,7 @@ curl_dir.mkdir(exist_ok=True)
 
 # region Создаёт пути для лога файлов
 bot_path = main_log_dir / 'bot.log'
+setCommands_path = main_log_dir / 'set_commands.log'
 foreman_path = curl_dir / 'foreman.log'
 cs_path = curl_dir / 'cs.log'
 # endregion
@@ -27,12 +28,14 @@ cs_path = curl_dir / 'cs.log'
 # region Создание лог файлов
 async def create_loggers():
     logger.add(bot_path, format=MAIN_FORMAT, filter=make_filters('bot'))
+    logger.add(setCommands_path, format=MAIN_FORMAT, filter=make_filters('commands'))
     logger.add(foreman_path, format=MAIN_FORMAT, filter=make_filters('foreman'), rotation='1 week', compression='zip')
     logger.add(cs_path, format=MAIN_FORMAT, filter=make_filters('cs'), rotation='1 week', compression='zip')
 # endregion
 
 # region Переменные для логирования
 bot_log = logger.bind(filter='bot')
+setCommands_log = logger.bind(filter='commands')
 foreman_log = logger.bind(filter='foreman')
 cs_log = logger.bind(filter='cs')
 # endregion

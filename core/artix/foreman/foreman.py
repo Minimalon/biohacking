@@ -120,15 +120,3 @@ async def get_info_from_all_cashes(only_saman: bool = False,
                 cash.os_name = 'Обновлен' if cash.os_name == 'bionic' else "Не обновлен"
                 cashes.append(cash)
     return [c.__dict__ for c in cashes]
-
-
-# Использование класса Foreman
-if __name__ == "__main__":
-    print(asyncio.run(get_cash('facts.artix_shopname = BioHacking')))
-    #
-    # cash = asyncio.run(get_info_from_all_cashes(only_saman=True))
-    # dt = pd.DataFrame.from_dict(cash)
-    # dt.to_excel(
-    #     Path(config.dir_path, 'cashes.xlsx'),
-    #     index=False,
-    # )

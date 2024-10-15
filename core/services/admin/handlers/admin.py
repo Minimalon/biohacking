@@ -16,6 +16,7 @@ router = Router()
 async def admin(message: Message, state: FSMContext, log: Logger, db: Database):
     log.button("/admin")
     client = await db.get_client(message.from_user.id)
+    log.debug(client.role.rolename)
     if not client.role.rolename in [ClientRolesEnum.ADMIN, ClientRolesEnum.SUPERADMIN]:
         await message.answer(texts.no_access)
         log.error('Пользователь не является админом')
