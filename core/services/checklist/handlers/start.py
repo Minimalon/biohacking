@@ -69,11 +69,6 @@ async def start(message: Message, state: FSMContext, log: Logger, db: Database):
     log.button('/checklist')
     await state.clear()
 
-    # Если включен режим разработчика
-    if not config.bot_cfg.develope_mode:
-        await message.answer(texts.is_develope)
-        return
-
     client = await db.get_client(message.from_user.id)
     if client.role.rolename in [ClientRolesEnum.ADMIN, ClientRolesEnum.SUPERADMIN]:
         await message.answer("Выберите нужную операцию",
