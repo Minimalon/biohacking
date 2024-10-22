@@ -34,7 +34,7 @@ async def main():
     await bot.set_my_commands(client_commands, BotCommandScopeDefault())
     await set_commands_all_users(bot)
     # CRON
-    if not BotConfig.develope_mode:
+    if not BotConfig().develope_mode:
         scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
         # scheduler.add_job(update_google_sheets, trigger='interval', hours=3, kwargs={'path': os.path.join(config.dir_path, 'core', 'cron', 'pythonapp.json')})
         scheduler.add_job(referals_main, 'cron', hour='2', minute='0')
