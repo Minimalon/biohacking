@@ -22,7 +22,7 @@ from core.services.account.handlers.routers import routers as account_routers
 
 # Запуск бота
 async def main():
-    # await init_models()
+    await init_models()
     await create_loggers()
     tg_config = TelegramConfig()
     bot = Bot(token=tg_config.TOKEN,
