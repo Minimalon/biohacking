@@ -1,6 +1,15 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 from core.services.start.callback_data import Sex
+
+
+def kb_name() -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.button(text='Завершить регистрацию➡️', callback_data='complete_registration')
+    keyboard.button(text='Ввести имя самому', callback_data='registration_name')
+    keyboard.adjust(1)
+    return keyboard.as_markup()
 
 
 def kb_sex() -> InlineKeyboardMarkup:

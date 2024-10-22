@@ -49,6 +49,7 @@ class Database:
                 )
             )
             return result.scalars().first()
+
     async def get_clients(self, user_id: list[int]) -> list[Clients] | None:
         async with self.AsyncSession() as session:
             result = await session.execute(
@@ -73,13 +74,9 @@ class Database:
             result = await session.execute(select(Clients).filter(Clients.phone_number == phone_number))
             return result.scalars().first()
 
-    async def get_admins(self) -> list[Clients]:
+    async def get_client_by_role(self, rolename: ClientRolesEnum) -> list[Clients]:
         async with self.AsyncSession() as session:
-            result = await session.execute(
-                select(Clients).
-                join(ClientRoles, Clients.user_id == ClientRoles.user_id).
-                filter(ClientRoles.rolename.in_((ClientRolesEnum.ADMIN, ClientRolesEnum.SUPERADMIN)))
-            )
+            result = await session.execute(select(Clients).where(ClientRoles.rolename == rolename).join(ClientRoles))
             return result.scalars().all()
 
     async def update_client(self, user_id: int, update_data: dict) -> None:
@@ -106,7 +103,6 @@ class Database:
             await session.commit()
 
 
-
 async def test():
     db = Database()
     # clcontent = await db.next_page_checlist_content(1, page=1)
@@ -120,7 +116,7 @@ async def test():
     # await db.add_checklist_content('Тест <b>123</b>', 1, 1, )
     # await db.add_checklist_action(EnumCheckListContentActions.NONE, 1)
 
-    await db.delete_client(5263751490)
+    await db.delete_client(376986939)
 
 
 if __name__ == '__main__':

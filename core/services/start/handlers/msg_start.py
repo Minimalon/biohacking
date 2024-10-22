@@ -10,7 +10,8 @@ from aiogram.utils.payload import decode_payload
 
 import config
 from core.artix.CS.cs import CS
-from core.artix.CS.pd_model import Client, CardInfo, CardBalance
+from core.artix.CS.pd_model import Client, CardInfo, CardBalance, Asset, AssetType, AwardsType
+from core.commands.commands import set_command_for_user
 from core.database.query import Database
 from core.filters.is_contact import IsTrueContact
 from core.loggers.bot_logger import Logger
@@ -18,8 +19,9 @@ from core.services.start.keyboards import inline, reply
 from core.utils import texts
 from core.utils.qr import generate_qr
 from ..callback_data import Sex
-from ..pd_models import Profile
+from ..pd_models.profile_bonuses import Profile
 from ..states import *
+from ...account.keyboards.inline import kb_account
 
 router = Router()
 
@@ -52,6 +54,7 @@ async def deeplink_start(message: Message, command: CommandObject, state: FSMCon
                                      FSInputFile(Path(config.dir_path, 'files', 'tutorial_registration.mp4')))
         await message.answer(text, reply_markup=reply.kb_registration())
         log.error(f"Пользователь {message.from_user.id} не зарегистрирован")
+        await state.update_data(deeplink=deeplink_args)
         return
     cs_card_balance = await cs.get_card_balance(message.from_user.id)
     profile = Profile(
@@ -65,8 +68,6 @@ async def deeplink_start(message: Message, command: CommandObject, state: FSMCon
         caption=await texts.profile(profile),
         reply_markup=inline.kb_start()
     )
-    await state.update_data(deeplink=deeplink_args)
-
 
 
 @router.message(CommandStart())
@@ -103,7 +104,7 @@ async def start(message: Message, state: FSMContext, log: Logger, db: Database):
 @router.message(F.contact, IsTrueContact())
 async def get_true_contact(message: Message, state: FSMContext, log: Logger, db: Database):
     log.info(f"Отправил свой сотовый '{message.contact.phone_number}'")
-    if not await db.get_client(message.from_user.id):
+    if await db.get_client(message.from_user.id) is None:
         await db.add_client(
             phone_number=await get_phone(message.contact.phone_number),
             first_name=message.contact.first_name,
@@ -133,61 +134,29 @@ async def get_birthday(message: Message, state: FSMContext, log: Logger):
                              f'Неверный формат дня рождения\nПример: 01.01.1990')
         return
     await state.update_data(reg_birthday=bd.strftime('%Y-%m-%d'))
+    await state.set_state(RegistrationStates.wait_name)
+    await message.answer(f'Ваше имя: <b>{message.from_user.first_name}</b>', reply_markup=inline.kb_name())
+
+
+@router.callback_query(F.data == 'registration_name')
+async def get_name(call: CallbackQuery, state: FSMContext, log: Logger):
+    log.button("Ввести имя самому")
     await state.set_state(RegistrationStates.name)
-    await message.answer('Напишите фамилию и имя')
+    await call.message.edit_text('Отправьте ответным сообщением ваше имя', reply_markup=inline.kb_name())
 
 
 @router.message(RegistrationStates.name)
-async def get_name(message: Message, state: FSMContext, log: Logger):
+async def accept_name(message: Message, state: FSMContext, log: Logger, db: Database):
     log.info(f"Отправил имя '{message.text}'")
     await state.update_data(reg_name=message.text)
-    await state.set_state(RegistrationStates.sex)
-    await message.answer('Выберите пол', reply_markup=inline.kb_sex())
+    await after_registaration(message, state, log, db)
 
 
-@router.callback_query(RegistrationStates.sex, Sex.filter())
-async def get_sex(call: CallbackQuery, state: FSMContext, log: Logger, callback_data: Sex, db: Database):
-    data = await state.get_data()
+@router.callback_query(F.data == 'complete_registration')
+async def complete_registration(call: CallbackQuery, state: FSMContext, log: Logger, db: Database):
+    log.button("Завершить регистрацию")
     await call.message.delete()
-    sex_name = 'Мужчина' if callback_data.sex == 0 else 'Женщина'
-    log.info(f"Выбрал пол '{sex_name}'")
-
-    cs = CS()
-    client = await db.get_client(call.from_user.id)
-    cs_client = Client(
-        idclient=call.from_user.id,
-        sex=callback_data.sex,
-        birthday=data['reg_birthday'],
-        phonenumber=client.phone_number,
-        name=data['reg_name']
-    )
-    cs_card = CardInfo(
-        idcard=call.from_user.id,
-        number=call.from_user.id,
-        idclient=call.from_user.id
-    )
-    await cs.create_client(cs_client)
-    await cs.create_card(cs_card)
-
-    cs_client = await cs.get_client_by_id(call.from_user.id)
-    cs_client_card = await cs.get_card_by_id(call.from_user.id)
-    cs_card_balance = await cs.get_card_balance(call.from_user.id)
-    profile = Profile(
-        cs_client=cs_client,
-        cs_card=cs_client_card,
-        cs_card_balance=cs_card_balance
-    )
-
-    if data.get('deeplink'):
-        await db.add_referral(call.from_user.id, int(data['deeplink']))
-
-    log.success(f"Пользователь {call.from_user.id} зарегистрирован")
-    await call.message.bot.send_photo(
-        call.message.chat.id,
-        photo=FSInputFile(await generate_qr(call.from_user.id)),
-        caption=await texts.profile(profile)
-    )
-    await state.clear()
+    await after_registaration(call.message, state, log, db)
 
 
 @router.callback_query(F.data == 'update_start_menu')
@@ -209,3 +178,44 @@ async def update_start_menu(call: CallbackQuery, state: FSMContext, log: Logger)
         caption=await texts.profile(profile),
         reply_markup=inline.kb_start()
     )
+
+
+async def after_registaration(message: Message, state: FSMContext, log: Logger, db: Database):
+    data = await state.get_data()
+
+    cs = CS()
+    client = await db.get_client(message.chat.id)
+    cs_client = Client(
+        idclient=message.chat.id,
+        birthday=data['reg_birthday'],
+        phonenumber=client.phone_number,
+        name=message.from_user.first_name if data.get('reg_name') is None else data['reg_name'],
+    )
+    cs_card = CardInfo(
+        idcard=message.chat.id,
+        number=message.chat.id,
+        idclient=message.chat.id,
+    )
+    await cs.create_client(cs_client)
+    await cs.create_card(cs_card)
+
+    succes_reg_asset = 200
+    await cs.post_asset(Asset(
+        cardNumber=message.chat.id,
+        amount=succes_reg_asset * 100,
+        type=AssetType.ADD,
+        additionalInfo={
+            'type': AwardsType.REGISTRATION
+        }
+    ))
+    await message.answer(texts.success_head + f"Вам начислены приветственные {succes_reg_asset} рублей за регистрацию.")
+    log.debug(f'deeplink = {data.get("deeplink")}')
+    if data.get('deeplink') is not None:
+        log.debug(f'Пользователю {message.chat.id} добавлен реферал {data["deeplink"]}')
+        await db.add_referral(message.chat.id, int(data['deeplink']))
+
+    log.success(f"Пользователь {message.chat.id} зарегистрирован")
+    await message.answer(await texts.account(message.from_user.first_name),
+                         reply_markup=kb_account())
+    await set_command_for_user(message.bot, message.chat.id)
+    await state.clear()

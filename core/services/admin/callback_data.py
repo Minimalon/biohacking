@@ -12,7 +12,14 @@ class SelectRole(CallbackData, prefix='select_role'):
     role: ClientRolesEnum
 
 
-if __name__ == '__main__':
-    for c in ClientRolesEnum:
-        print(c.value)
+class cbCatalog(CallbackData, prefix='select_catalog'):
+    id: int
 
+
+class CbOpenOrders(CallbackData, prefix='open_orders'):
+    order_id: int
+
+
+class CbCloseOrder(CallbackData, prefix='close_order'):
+    order_id: int
+    status_id: int
