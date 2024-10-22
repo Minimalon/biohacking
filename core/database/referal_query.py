@@ -72,9 +72,17 @@ class ReferralQuery(Database):
         async with self.AsyncSession() as session:
             result = await session.execute(
                 select(Referrals)
-                .where(and_(Referrals.date <= start_date, Referrals.date >= end_date),
+                .where(
+                    and_(Referrals.date <= start_date,
+                         Referrals.date >= end_date),
                     Referrals.ref_id == user_id)
             )
+            return result.scalars().all()
+
+    async def get_all_uniq_referrals(self) -> List[Referrals]:
+        """Получение всех уникальных рефералов"""
+        async with self.AsyncSession() as session:
+            result = await session.execute(select(Referrals).distinct(Referrals.ref_id))
             return result.scalars().all()
 
 

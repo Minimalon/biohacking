@@ -1,24 +1,24 @@
 from aiogram import F, Router
-from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from core.commands.commands import set_commands
+from core.commands.commands import set_command_for_user
 from core.database.model import ClientRolesEnum
 from core.database.query import Database
 from core.loggers.bot_logger import Logger
 from core.utils import texts
 from ..callback_data import SelectRole
-from ..keyboards import inline, reply
+from ..keyboards import inline
 from ..states import SetAdminState
 
 router = Router()
 
 
 @router.callback_query(F.data == 'set_admin')
-async def enter_phone(call: CallbackQuery, state: FSMContext, log: Logger):
+async def enter_phone(call: CallbackQuery, state: FSMContext, log: Logger, db: Database):
     log.button("Изменить роль пользователя")
-    await call.message.edit_text('Выберите роль пользователя', reply_markup=inline.kb_select_role())
+    client = await db.get_client(call.from_user.id)
+    await call.message.edit_text('Выберите роль пользователя', reply_markup=inline.kb_select_role(client))
     await state.set_state(SetAdminState.enter_phone)
 
 
@@ -43,7 +43,7 @@ async def set_phone(message: Message, state: FSMContext, db: Database, log: Logg
         return
     role = ClientRolesEnum(data.get('new_role'))
     await db.update_role_client(client.user_id, role)
-    await set_commands(message.bot)
+    await set_command_for_user(message.bot, client.user_id)
     await message.answer(
         f"{texts.success_head}"
         f"Изменили роль пользователя <b>{client.first_name}</b> на <b>{role.value}</b>",
