@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 from aiogram import F, Router
-from aiogram.filters import CommandStart, CommandObject
+from aiogram.filters import CommandStart, CommandObject, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.utils.payload import decode_payload
@@ -218,4 +218,10 @@ async def after_registaration(message: Message, state: FSMContext, log: Logger, 
     await message.answer(await texts.account(message.from_user.first_name),
                          reply_markup=kb_account())
     await set_command_for_user(message.bot, message.chat.id)
+    await state.clear()
+
+@router.message(Command('clear'))
+async def clear(message: Message, state: FSMContext, log: Logger):
+    log.info(f"Пользователь {message.from_user.id} очистил бота")
+    await message.answer(texts.success_head + "Бот был очищен")
     await state.clear()
