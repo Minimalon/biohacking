@@ -114,7 +114,7 @@ async def enter_text(message: Message, state: FSMContext, log: Logger):
 
     if text is not None:
         if len(text) > 824:
-            await message.answer(texts.error_head + "Слишком длинное название\n"
+            await message.answer(texts.error_head + "Слишком длинное описанние товара\n"
                                                     "Отправьте ответным сообщением ОПИСАНИЕ товара, также можно приложить 1 фото")
             log.error(f'Слишком длинное название "{message.text}"')
             return
