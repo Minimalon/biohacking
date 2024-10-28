@@ -208,7 +208,8 @@ async def after_registaration(message: Message, state: FSMContext, log: Logger, 
             'type': AwardsType.REGISTRATION
         }
     ))
-    await message.answer(texts.success_head + f"Вам начислены приветственные {succes_reg_asset} рублей за регистрацию.")
+    await message.answer(texts.success_head + f"Вам начислены приветственные {succes_reg_asset} рублей за регистрацию.",
+                         reply_markup=ReplyKeyboardRemove)
     log.debug(f'deeplink = {data.get("deeplink")}')
     if data.get('deeplink') is not None:
         log.debug(f'Пользователю {message.chat.id} добавлен реферал {data["deeplink"]}')
@@ -220,8 +221,12 @@ async def after_registaration(message: Message, state: FSMContext, log: Logger, 
     await set_command_for_user(message.bot, message.chat.id)
     await state.clear()
 
+
 @router.message(Command('clear'))
 async def clear(message: Message, state: FSMContext, log: Logger):
     log.info(f"Пользователь {message.from_user.id} очистил бота")
-    await message.answer(texts.success_head + "Бот был очищен")
+    try:
+        await message.answer(texts.success_head + "Бот был очищен", reply_markup=ReplyKeyboardRemove)
+    except Exception as e:
+        pass
     await state.clear()

@@ -97,6 +97,7 @@ def kb_select_catalog(catalogs: list[Catalog]) -> InlineKeyboardMarkup:
     for catalog in catalogs:
         keyboard.button(text=f'{catalog.title}',
                         callback_data=cbCatalog(id=catalog.id))
+    keyboard.button(text='Назад⬅️', callback_data='orders')
     keyboard.adjust(1)
     return keyboard.as_markup()
 
