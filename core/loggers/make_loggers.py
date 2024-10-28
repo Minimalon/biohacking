@@ -22,6 +22,7 @@ curl_dir.mkdir(exist_ok=True)
 bot_path = main_log_dir / 'bot.log'
 setCommands_path = main_log_dir / 'set_commands.log'
 refAwards_path = main_log_dir / 'referal_awards.log'
+except_path = main_log_dir / 'except.log'
 foreman_path = curl_dir / 'foreman.log'
 cs_path = curl_dir / 'cs.log'
 # endregion
@@ -29,6 +30,7 @@ cs_path = curl_dir / 'cs.log'
 # region Создание лог файлов
 async def create_loggers():
     logger.add(bot_path, format=MAIN_FORMAT, filter=make_filters('bot'))
+    logger.add(except_path, format=MAIN_FORMAT, filter=make_filters('except'))
     logger.add(setCommands_path, format=MAIN_FORMAT, filter=make_filters('commands'))
     logger.add(refAwards_path, format=MAIN_FORMAT, filter=make_filters('refAwards'))
     logger.add(foreman_path, format=MAIN_FORMAT, filter=make_filters('foreman'), rotation='1 week', compression='zip')
@@ -37,6 +39,7 @@ async def create_loggers():
 
 # region Переменные для логирования
 bot_log = logger.bind(filter='bot')
+except_log = logger.bind(filter='except')
 setCommands_log = logger.bind(filter='commands')
 refAwards_log = logger.bind(filter='refAwards')
 foreman_log = logger.bind(filter='foreman')
