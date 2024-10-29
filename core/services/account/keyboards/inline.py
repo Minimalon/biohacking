@@ -10,9 +10,12 @@ from ...start.callback_data import cbAddProductToCart, cbProduct
 
 def kb_account() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
-    keyboard.button(text='Заказы', callback_data='orders')
+    # keyboard.button(text='Заказы', callback_data='orders')
+    keyboard.button(text='Получить подарок!', callback_data='energy_guide')
     keyboard.button(text='Бонусные баллы', callback_data='bonus_card')
-    keyboard.button(text='Мне нужна помощь', callback_data='need_help')
+    keyboard.button(text='Парнерская программа', callback_data='referals_program')
+    keyboard.button(text='Оформить заказ', url='https://bogonaft.com')
+    keyboard.button(text='Купить Франшизу!', url='https://bogonaft.com/franchise2')
     keyboard.adjust(1)
     return keyboard.as_markup()
 

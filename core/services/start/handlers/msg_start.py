@@ -199,8 +199,8 @@ async def after_registaration(message: Message, state: FSMContext, log: Logger, 
     await cs.create_client(cs_client)
     await cs.create_card(cs_card)
 
-    succes_reg_asset = 200
-    await cs.post_asset(Asset(
+    succes_reg_asset = 100
+    response = await cs.post_asset(Asset(
         cardNumber=message.chat.id,
         amount=succes_reg_asset * 100,
         type=AssetType.ADD,
@@ -208,15 +208,26 @@ async def after_registaration(message: Message, state: FSMContext, log: Logger, 
             'type': AwardsType.REGISTRATION
         }
     ))
-    await message.answer(texts.success_head + f"Вам начислены приветственные {succes_reg_asset} рублей за регистрацию.",
-                         reply_markup=ReplyKeyboardRemove)
+    if response.ok:
+        log.success(f'Успешно добавлено {succes_reg_asset} рублей за регистрацию')
+        await message.answer(
+            texts.success_head + f"Вам начислены приветственные {succes_reg_asset} рублей за регистрацию.",
+            reply_markup=ReplyKeyboardRemove)
+
+    else:
+        log.error(f'Не удалось добавить {succes_reg_asset} рублей за регистрацию')
+        await message.answer(
+            texts.error_head + f'Не удалось добавить {succes_reg_asset} рублей за регистрацию.',
+            reply_markup=ReplyKeyboardRemove)
+
     log.debug(f'deeplink = {data.get("deeplink")}')
     if data.get('deeplink') is not None:
         log.debug(f'Пользователю {message.chat.id} добавлен реферал {data["deeplink"]}')
         await db.add_referral(message.chat.id, int(data['deeplink']))
 
     log.success(f"Пользователь {message.chat.id} зарегистрирован")
-    await message.answer(await texts.account(message.from_user.first_name),
+    fullname = f'{message.from_user.first_name} {message.from_user.last_name}' if message.from_user.last_name is not None else message.from_user.first_name
+    await message.answer(await texts.account(fullname),
                          reply_markup=kb_account())
     await set_command_for_user(message.bot, message.chat.id)
     await state.clear()

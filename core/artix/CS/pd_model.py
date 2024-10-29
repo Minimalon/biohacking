@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, field_validator
 class AwardsType(enum.Enum):
     REGISTRATION = "Регистрация в боте"
     REFERAL_SYSTEM = "Реферальная система"
+    ENERGY_GUIDE = "Реферальная система"
 
 
 class AssetType(enum.Enum):

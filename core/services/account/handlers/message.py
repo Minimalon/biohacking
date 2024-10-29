@@ -12,14 +12,16 @@ router = Router()
 @router.message(Command('account'))
 async def account(message: Message, log: Logger):
     log.button('/account')
-    await message.answer(await texts.account(message.from_user.first_name),
+    fullname = f'{message.from_user.first_name} {message.from_user.last_name}' if message.from_user.last_name is not None else message.from_user.first_name
+    await message.answer(await texts.account(fullname),
                          reply_markup=inline.kb_account())
 
 
 @router.callback_query(F.data == 'account')
 async def back_account(call: CallbackQuery, log: Logger):
     log.button('Назад в личный кабинет')
-    await call.message.edit_text(await texts.account(call.from_user.first_name),
+    fullname = f'{call.from_user.first_name} {call.from_user.last_name}' if call.from_user.last_name is not None else call.from_user.first_name
+    await call.message.edit_text(await texts.account(fullname),
                                  reply_markup=inline.kb_account())
 
 
