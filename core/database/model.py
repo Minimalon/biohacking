@@ -69,6 +69,12 @@ class Clients(Base):
         cascade="all, delete",
         uselist=True,
     )
+    bonus_awards = relationship(
+        "BonusAward",
+        back_populates="client",
+        cascade="all, delete",
+        uselist=True,
+    )
 
 class ClientRoles(Base):
     __tablename__ = 'clientroles'
@@ -271,6 +277,14 @@ class HelpTicket(Base):
     client = relationship("Clients", back_populates="help_tickets")
     ticket_status = relationship("HelpTicketStatus", back_populates="tickets", uselist=False)
 
+class BonusAward(Base):
+    id = Column(BigInteger, primary_key=True)
+    date = Column(DateTime(timezone=True), server_default=func.now())
+    user_id = Column(BigInteger, ForeignKey('clients.user_id', ondelete="CASCADE"), nullable=False)
+    award = Column(BigInteger, nullable=False)
+    type = Column(String, nullable=False)
+
+    client = relationship("Clients", back_populates="bonus_awards")
 
 
 async def init_models():

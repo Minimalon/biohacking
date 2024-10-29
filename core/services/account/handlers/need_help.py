@@ -29,7 +29,8 @@ async def need_help(call: CallbackQuery, log: Logger):
 @router.callback_query(F.data == 'cancel_need_help')
 async def cancel_need_help(call: CallbackQuery, log: Logger):
     log.button('Отменить помощь')
-    await call.message.edit_text(await texts.account(call.from_user.first_name),
+    fullname = f'{call.from_user.first_name} {call.from_user.last_name}' if call.from_user.last_name is not None else call.from_user.first_name
+    await call.message.edit_text(await texts.account(fullname),
                                  reply_markup=inline.kb_account())
 
 
