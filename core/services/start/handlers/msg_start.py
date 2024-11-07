@@ -56,18 +56,9 @@ async def deeplink_start(message: Message, command: CommandObject, state: FSMCon
         log.error(f"Пользователь {message.from_user.id} не зарегистрирован")
         await state.update_data(deeplink=deeplink_args)
         return
-    cs_card_balance = await cs.get_card_balance(message.from_user.id)
-    profile = Profile(
-        cs_client=cs_client,
-        cs_card=cs_client_card,
-        cs_card_balance=cs_card_balance
-    )
-    await message.bot.send_photo(
-        message.chat.id,
-        photo=FSInputFile(await generate_qr(message.from_user.id)),
-        caption=await texts.profile(profile),
-        reply_markup=inline.kb_start()
-    )
+    fullname = f'{message.from_user.first_name} {message.from_user.last_name}' if message.from_user.last_name is not None else message.from_user.first_name
+    await message.answer(await texts.account(fullname),
+                         reply_markup=kb_account())
 
 
 @router.message(CommandStart())
@@ -87,18 +78,9 @@ async def start(message: Message, state: FSMContext, log: Logger, db: Database):
         await message.answer(text, reply_markup=reply.kb_registration())
         log.error(f"Пользователь {message.from_user.id} не зарегистрирован")
         return
-    cs_card_balance = await cs.get_card_balance(message.from_user.id)
-    profile = Profile(
-        cs_client=cs_client,
-        cs_card=cs_client_card,
-        cs_card_balance=cs_card_balance
-    )
-    await message.bot.send_photo(
-        message.chat.id,
-        photo=FSInputFile(await generate_qr(message.from_user.id)),
-        caption=await texts.profile(profile),
-        reply_markup=inline.kb_start()
-    )
+    fullname = f'{message.from_user.first_name} {message.from_user.last_name}' if message.from_user.last_name is not None else message.from_user.first_name
+    await message.answer(await texts.account(fullname),
+                         reply_markup=kb_account())
 
 
 @router.message(F.contact, IsTrueContact())

@@ -17,18 +17,18 @@ client_commands = [
 ]
 
 employee_commands = [
-    BotCommand(
-        command='checklist',
-        description='Чек лист'
-    ),
-    BotCommand(
-        command='tickets_help',
-        description='Заявки на помощь'
-    ),
-    BotCommand(
-        command='orders_list',
-        description='Открытые заказы'
-    ),
+    # BotCommand(
+    #     command='checklist',
+    #     description='Чек лист'
+    # ),
+    # BotCommand(
+    #     command='tickets_help',
+    #     description='Заявки на помощь'
+    # ),
+    # BotCommand(
+    #     command='orders_list',
+    #     description='Открытые заказы'
+    # ),
 ]
 
 admin_commands = [
