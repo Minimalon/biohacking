@@ -15,7 +15,8 @@ def kb_account() -> InlineKeyboardMarkup:
     keyboard.button(text='Бонусные баллы', callback_data='bonus_card')
     keyboard.button(text='Парнерская программа', callback_data='referals_program')
     keyboard.button(text='Оформить заказ', url='https://bogonaft.com')
-    keyboard.button(text='Купить Франшизу!', url='https://bogonaft.com/franchise2')
+    keyboard.button(text='Купить Франшизу!', url='https://bogonaft.com/franchise')
+    keyboard.button(text='Информация о нашей команде', url='https://bogonaft.com/team')
     keyboard.adjust(1)
     return keyboard.as_markup()
 
