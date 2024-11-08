@@ -40,14 +40,8 @@ async def ref_menu(message: Message, log: Logger):
 
 
 @router.callback_query(F.data == 'create_ref_link')
-async def create_ref_link(call: CallbackQuery, log: Logger, db: Database):
+async def create_ref_link(call: CallbackQuery, log: Logger):
     log.button('Создать реферальную ссылку')
-    client = await db.get_client(call.from_user.id)
-    if not client.role.rolename in [ClientRolesEnum.ADMIN, ClientRolesEnum.SUPERADMIN, ClientRolesEnum.EMPLOYEE, ClientRolesEnum.CLIENT]:
-        await call.message.answer(texts.no_access)
-        log.error('Пользователь не является админом')
-        return
-
     link = await create_start_link(call.message.bot, str(call.from_user.id), encode=True)
     await call.message.delete()
     await call.message.bot.send_photo(
