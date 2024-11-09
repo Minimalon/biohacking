@@ -7,7 +7,7 @@ import aiohttp
 
 from aiohttp import ClientResponse, BasicAuth
 
-from core.artix.CS.pd_model import Client, CardBalance, CardInfo, Asset, AssetExtended, AssetType
+from core.artix.CS.pd_model import Client, CardBalance, CardInfo, Asset, AssetExtended, AssetType, AwardsType
 import config
 from core.loggers.make_loggers import cs_log
 
@@ -56,6 +56,18 @@ class CS:
                 await log_request('POST', str(resp.url), headers=headers, data=data)
                 await log_response(resp)
                 return resp
+    async def _delete(self,
+                    url: str,
+                    params: dict = None,
+                    headers: dict = None,
+                    data: str = None,
+                    auth: BasicAuth = None
+                    ) -> ClientResponse:
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(url, params=params, headers=headers, data=data, auth=auth) as resp:
+                await log_request('DELETE', str(resp.url), headers=headers, data=data)
+                await log_response(resp)
+                return resp
 
     async def get_clients(self) -> list[Client]:
         url = f'{self.cs_url}/dictionaries/clients'
@@ -79,6 +91,10 @@ class CS:
             headers={'Content-Type': 'application/json'},
             data=client.model_dump_json(exclude_none=True)
         )
+        return resp
+    async def delete_client(self, user_id: int) -> ClientResponse:
+        url = f'{self.cs_url}/dictionaries/clients/id/{user_id}'
+        resp = await self._delete(url)
         return resp
 
     async def get_card_balance(self, card_number: Union[int, str]) -> CardBalance | None:
@@ -160,9 +176,20 @@ class CS:
         )
         return [AssetExtended.model_validate_json(json.dumps(asset)) for asset in await resp.json()]
 
-#
-# if __name__ == '__main__':
-#     import asyncio
-#
-#     cs = CS()
-#     print(asyncio.run(cs.get_assets('5263751490', '5263751490')))
+
+if __name__ == '__main__':
+    import asyncio
+
+    cs = CS()
+    user_id  = 1371688598
+    # print(asyncio.run(cs.create_card(CardInfo(
+    #     idcard=user_id,
+    #     idclient=user_id,
+    #     number=user_id,
+    # ))))
+    response = asyncio.run(cs.post_asset(Asset(
+        cardNumber=user_id,
+        amount=100 * 100,
+        type=AssetType.ADD,
+    ))
+    )
