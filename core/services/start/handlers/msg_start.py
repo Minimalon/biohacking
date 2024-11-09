@@ -194,13 +194,13 @@ async def after_registaration(message: Message, state: FSMContext, log: Logger, 
         log.success(f'Успешно добавлено {succes_reg_asset} рублей за регистрацию')
         await message.answer(
             texts.success_head + f"Вам начислены приветственные {succes_reg_asset} рублей за регистрацию.",
-            reply_markup=ReplyKeyboardRemove)
+            reply_markup=ReplyKeyboardRemove())
 
     else:
         log.error(f'Не удалось добавить {succes_reg_asset} рублей за регистрацию')
         await message.answer(
             texts.error_head + f'Не удалось добавить {succes_reg_asset} рублей за регистрацию.',
-            reply_markup=ReplyKeyboardRemove)
+            reply_markup=ReplyKeyboardRemove())
 
     log.debug(f'deeplink = {data.get("deeplink")}')
     if data.get('deeplink') is not None:
@@ -219,7 +219,7 @@ async def after_registaration(message: Message, state: FSMContext, log: Logger, 
 async def clear(message: Message, state: FSMContext, log: Logger):
     log.info(f"Пользователь {message.from_user.id} очистил бота")
     try:
-        await message.answer(texts.success_head + "Бот был очищен", reply_markup=ReplyKeyboardRemove)
+        await message.answer(texts.success_head + "Бот был очищен", reply_markup=ReplyKeyboardRemove())
     except Exception as e:
         pass
     await state.clear()
