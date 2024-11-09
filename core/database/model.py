@@ -23,9 +23,9 @@ class Clients(Base):
     __tablename__ = 'clients'
     date = Column(DateTime(timezone=True), server_default=func.now())
     phone_number = Column(String(50), nullable=False)
-    first_name = Column(String(50))
-    last_name = Column(String(50))
-    username = Column(String(50))
+    first_name = Column(String(250))
+    last_name = Column(String(250))
+    username = Column(String(250))
     user_id = Column(BigInteger, primary_key=True)
     chat_id = Column(BigInteger, nullable=False)
     autologins = relationship(
