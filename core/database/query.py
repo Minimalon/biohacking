@@ -116,7 +116,7 @@ async def test():
     # await db.add_checklist_content('Тест <b>123</b>', 1, 1, )
     # await db.add_checklist_action(EnumCheckListContentActions.NONE, 1)
 
-    await db.delete_client(376986939)
+    await db.add_client('79179280497', '💎Лениза', 'Валеева - Т-тренер, нейропсихолог, ТВУ и телесный психотерапевт', 'Lenizavaleeva', 156987730, 156987730)
 
 
 if __name__ == '__main__':
