@@ -169,7 +169,6 @@ async def after_registaration(message: Message, state: FSMContext, log: Logger, 
     client = await db.get_client(message.chat.id)
     cs_client = Client(
         idclient=message.chat.id,
-        birthday=data['reg_birthday'],
         phonenumber=client.phone_number,
         name=message.from_user.first_name if data.get('reg_name') is None else data['reg_name'],
     )
