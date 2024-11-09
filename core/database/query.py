@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker, joinedload
 from sqlalchemy.future import select
 from sqlalchemy import update
 
+from core.artix.CS.cs import CS
 from core.database.model import *
 import config
 from core.services.checklist.pd_models.pd_admin import CLCreateMenu
@@ -115,8 +116,10 @@ async def test():
     # await db.add_checklist_menu('Открытие смены')
     # await db.add_checklist_content('Тест <b>123</b>', 1, 1, )
     # await db.add_checklist_action(EnumCheckListContentActions.NONE, 1)
-
-    await db.add_client('79179280497', '💎Лениза', 'Валеева - Т-тренер, нейропсихолог, ТВУ и телесный психотерапевт', 'Lenizavaleeva', 156987730, 156987730)
+    user_id = 376986939
+    cs = CS()
+    await db.delete_client(user_id)
+    await cs.delete_client(user_id)
 
 
 if __name__ == '__main__':

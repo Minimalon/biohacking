@@ -124,21 +124,21 @@ async def get_birthday(message: Message, state: FSMContext, log: Logger):
 async def get_name(call: CallbackQuery, state: FSMContext, log: Logger):
     log.button("Ввести имя самому")
     await state.set_state(RegistrationStates.name)
-    await call.message.edit_text('Отправьте ответным сообщением ваше имя', reply_markup=inline.kb_name())
+    await call.message.edit_text('Отправьте ответным сообщением ваше имя')
 
 
 @router.message(RegistrationStates.name)
 async def accept_name(message: Message, state: FSMContext, log: Logger, db: Database):
     log.info(f"Отправил имя '{message.text}'")
     await state.update_data(reg_name=message.text)
-    await after_registaration(message, state, log, db)
+    await after_registaration(message.from_user.id, message.text, message, state, log, db)
 
 
 @router.callback_query(F.data == 'complete_registration')
 async def complete_registration(call: CallbackQuery, state: FSMContext, log: Logger, db: Database):
     log.button("Завершить регистрацию")
     await call.message.delete()
-    await after_registaration(call.message, state, log, db)
+    await after_registaration(call.from_user.id, call.from_user.first_name, call.message, state, log, db)
 
 
 @router.callback_query(F.data == 'update_start_menu')
@@ -162,27 +162,34 @@ async def update_start_menu(call: CallbackQuery, state: FSMContext, log: Logger)
     )
 
 
-async def after_registaration(message: Message, state: FSMContext, log: Logger, db: Database):
+async def after_registaration(user_id: int, user_name: str, message: Message, state: FSMContext, log: Logger, db: Database):
     data = await state.get_data()
 
     cs = CS()
     client = await db.get_client(message.chat.id)
+
+    if data.get('reg_birthday') is None:
+        await state.set_state(RegistrationStates.birthday)
+        await message.answer('Введите день рождения\nПример: 01.01.1990', reply_markup=ReplyKeyboardRemove())
+        return
+
     cs_client = Client(
-        idclient=message.chat.id,
+        idclient=user_id,
+        birthday=data['reg_birthday'],
         phonenumber=client.phone_number,
-        name=message.from_user.first_name if data.get('reg_name') is None else data['reg_name'],
+        name=user_name if data.get('reg_name') is None else data['reg_name'],
     )
     cs_card = CardInfo(
-        idcard=message.chat.id,
-        number=message.chat.id,
-        idclient=message.chat.id,
+        idcard=user_id,
+        number=user_id,
+        idclient=user_id,
     )
     await cs.create_client(cs_client)
     await cs.create_card(cs_card)
 
     succes_reg_asset = 100
     response = await cs.post_asset(Asset(
-        cardNumber=message.chat.id,
+        cardNumber=user_id,
         amount=succes_reg_asset * 100,
         type=AssetType.ADD,
         additionalInfo={
@@ -200,15 +207,14 @@ async def after_registaration(message: Message, state: FSMContext, log: Logger, 
         await message.answer(
             texts.error_head + f'Не удалось добавить {succes_reg_asset} рублей за регистрацию.',
             reply_markup=ReplyKeyboardRemove())
-
-    log.debug(f'deeplink = {data.get("deeplink")}')
     if data.get('deeplink') is not None:
-        log.debug(f'Пользователю {message.chat.id} добавлен реферал {data["deeplink"]}')
-        await db.add_referral(message.chat.id, int(data['deeplink']))
+        log.debug(f'deeplink = {data.get("deeplink")}')
+    if data.get('deeplink') is not None:
+        log.debug(f'Пользователю {user_id} добавлен реферал {data["deeplink"]}')
+        await db.add_referral(user_id, int(data['deeplink']))
 
-    log.success(f"Пользователь {message.chat.id} зарегистрирован")
-    fullname = f'{message.from_user.first_name} {message.from_user.last_name}' if message.from_user.last_name is not None else message.from_user.first_name
-    await message.answer(await texts.account(fullname),
+    log.success(f"Пользователь {user_id} зарегистрирован")
+    await message.answer(await texts.account(user_name),
                          reply_markup=kb_account())
     await set_command_for_user(message.bot, message.chat.id)
     await state.clear()
