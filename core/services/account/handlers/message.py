@@ -1,7 +1,11 @@
+from pathlib import Path
+
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, FSInputFile
+
+import config
 from ..keyboards import inline, reply
 from core.loggers.bot_logger import Logger
 from core.utils import texts
@@ -13,8 +17,10 @@ router = Router()
 async def account(message: Message, log: Logger):
     log.button('/account')
     fullname = f'{message.from_user.first_name} {message.from_user.last_name}' if message.from_user.last_name is not None else message.from_user.first_name
-    await message.answer(await texts.account(fullname),
-                         reply_markup=inline.kb_account())
+    await message.bot.send_photo(message.chat.id,
+                                 photo=FSInputFile(Path(config.dir_path, 'files', '3.jpg')),
+                                 caption=await texts.account(fullname),
+                                 reply_markup=inline.kb_account())
 
 
 @router.callback_query(F.data == 'account')

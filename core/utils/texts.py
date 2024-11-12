@@ -166,8 +166,7 @@ async def energy_awards() -> str:
         f'Благодаря данному Гайду - ты подымешь эффективность в несколько раз и «Хакнешь» свою жизнь на Новый Уровень! \n\n'
         f'Приятной практики.\n'
         f'Жди ещё новых подарков! 🎁\n\n'
-        f'<i>«Раскрой свой потенциал!»</i>\n\n'
-        f'https://docs.yandex.ru/docs/view?url=ya-disk-public%3A%2F%2F3RA%2FyJkTzZzhQMO7iUdyyinjiMbuKlU8lhJLaVLqoHq58QTtyyFWVbPNPv99oA5Zq%2FJ6bpmRyOJonT3VoXnDag%3D%3D%3A%2F%D0%93%D0%B0%D0%B8%CC%86%D0%B4_%D0%AD%D0%9D%D0%95%D0%A0%D0%93%D0%9E%D0%A3%D0%A2%D0%A0%D0%9E.pdf&name=%D0%93%D0%B0%D0%B8%CC%86%D0%B4_%D0%AD%D0%9D%D0%95%D0%A0%D0%93%D0%9E%D0%A3%D0%A2%D0%A0%D0%9E.pdf'
+        f'<i>«Раскрой свой потенциал!»</i>'
     )
 
 async def referals_program() -> str:
