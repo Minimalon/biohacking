@@ -2,14 +2,14 @@ import os
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
+DEVELOPE_MODE = True
 
 class BaseConfig(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=Path(dir_path, '.env'),
+        env_file=Path(dir_path, '.dev_env' if DEVELOPE_MODE else '.prod_env'),
         env_file_encoding='utf-8',
         extra='ignore',
     )
@@ -81,11 +81,6 @@ class ForemanConfig(BaseConfig):
     USERNAME_18: str
     PASSWORD_18: str
 
-class BotConfig(BaseConfig):
-    model_config = SettingsConfigDict(env_prefix='BOT_')
-
-    develope_mode: bool = Field(default=False)
-
 
 cs_cfg = CashServerConfig()
 db_cfg = DatabaseConfig()
@@ -93,4 +88,3 @@ tg_cfg = TelegramConfig()
 redis_cfg = RedisConfig()
 foreman_cfg = ForemanConfig()
 artixcash_db_cfg = ArtixCashDatabaseConfig()
-bot_cfg = BotConfig()

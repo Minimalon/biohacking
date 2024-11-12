@@ -13,5 +13,6 @@ pyvenv.cfg
 pip-selfcheck.json
 .idea
 .run
-.env
+.dev_env
+.prod_env
 Pipfile.lock

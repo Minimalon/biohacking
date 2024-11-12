@@ -1,4 +1,3 @@
-from core.utils.tasks import send_message, add
+from core.utils.tasks import send_message
 
-send_message.apply_async()
-# add.delay(1, 2)
+print(send_message.delay())

@@ -120,3 +120,8 @@ async def get_info_from_all_cashes(only_saman: bool = False,
                 cash.os_name = 'Обновлен' if cash.os_name == 'bionic' else "Не обновлен"
                 cashes.append(cash)
     return [c.__dict__ for c in cashes]
+
+if __name__ == '__main__':
+    import asyncio
+
+    print(asyncio.run(get_cashes('facts.artix_shopname ~ biohacking')))

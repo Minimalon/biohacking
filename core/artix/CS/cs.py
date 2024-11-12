@@ -56,13 +56,14 @@ class CS:
                 await log_request('POST', str(resp.url), headers=headers, data=data)
                 await log_response(resp)
                 return resp
+
     async def _delete(self,
-                    url: str,
-                    params: dict = None,
-                    headers: dict = None,
-                    data: str = None,
-                    auth: BasicAuth = None
-                    ) -> ClientResponse:
+                      url: str,
+                      params: dict = None,
+                      headers: dict = None,
+                      data: str = None,
+                      auth: BasicAuth = None
+                      ) -> ClientResponse:
         async with aiohttp.ClientSession() as session:
             async with session.delete(url, params=params, headers=headers, data=data, auth=auth) as resp:
                 await log_request('DELETE', str(resp.url), headers=headers, data=data)
@@ -92,6 +93,7 @@ class CS:
             data=client.model_dump_json(exclude_none=True)
         )
         return resp
+
     async def delete_client(self, user_id: int) -> ClientResponse:
         url = f'{self.cs_url}/dictionaries/clients/id/{user_id}'
         resp = await self._delete(url)
@@ -100,6 +102,8 @@ class CS:
     async def get_card_balance(self, card_number: Union[int, str]) -> CardBalance | None:
         url = f'{self.acc_url}/cards/{card_number}'
         resp = await self._get(url, auth=BasicAuth(login='_cash_1_0b7357b7'))
+        if not resp.ok:
+            raise ValueError(await resp.text())
         if await resp.text():
             return CardBalance.model_validate_json(await resp.text())
 
@@ -165,9 +169,9 @@ class CS:
         if pageSize is not None:
             p['pageSize'] = pageSize
         if sortByTimeDescending is not None:
-            p['sortByTimeDescending'] =  1 if sortByTimeDescending else 0
+            p['sortByTimeDescending'] = 1 if sortByTimeDescending else 0
         if sortByTimeAscending is not None:
-            p['sortByTimeAscending'] =  1 if sortByTimeAscending else 0
+            p['sortByTimeAscending'] = 1 if sortByTimeAscending else 0
         url = f'{self.acc_url}/assets'
         resp = await self._get(
             url,
@@ -177,19 +181,49 @@ class CS:
         return [AssetExtended.model_validate_json(json.dumps(asset)) for asset in await resp.json()]
 
 
+async def test():
+    users = ['388039160', '924922438', '811319960', '428163781', '394596727', '5815624104', '447062998', '986863686',
+             '443968576', '5321706310', '1770784850', '1244631522', '726476418', '856469774', '248836879', '2070480739',
+             '539369477', '450416964', '1843885562', '1472092643', '762612462', '5196065459', '243957203', '5731366934',
+             '388682762', '919470794', '7300522463', '1075878229', '1035355202', '209326571', '242714843', '1334675578',
+             '804529505', '593274035', '836502136', '845717047', '6396392644', '743064960', '1843355953', '823004386',
+             '6105053287', '768367828', '532327323', '1071211800', '5551692359', '370475345', '1329929220',
+             '1199805378', '154421863', '473272589', '1873174575', '540112118', '5267256328', '7662207590', '913281234',
+             '1376871141', '829801990', '545342917', '525940449', '711139597', '1047693972', '941347997', '5263751490',
+             '854522526', '1233707578', '456186956', '468505807', '386798741', '6132851728', '739627027', '603385647',
+             '836979817', '374674688', '934042263', '1735401006', '869522946', '6517473497', '663144377', '176400022',
+             '1233383368', '959220585', '7349176834', '59495467', '5086015856', '347064', '1194135957', '5694925340',
+             '221536412', '839016486', '1042392857', '783099943', '547806778', '905998327', '976178771', '1202600019',
+             '901385019', '1025061890', '867679204', '643910845', '951987616', '376986939', '314088607', '304152026',
+             '1041379443', '5189516540', '506605468', '897941471', '2028615862', '722174255', '889905981', '1082539305',
+             '88948103', '5320029087', '1153719765', '933088613', '888700916', '1371688598', '1068414861', '1098975110',
+             '396854039', '701466626', '685561134', '6836203261', '1425286299', '6079288733', '343997783', '906670626',
+             '259291378', '775307220', '1460350522', '227646654', '118596905', '445661446', '1664941884', '1915210340',
+             '1804720336', '250146117', '1558613771', '5013978760', '147990467', '243106074', '863151724', '491602033',
+             '774070746', '702817377', '666315625', '744031816', '377883568', '844383343', '718418809', '394108602',
+             '1411636573', '758293445', '538041749', '719760785', '892564623', '365105417', '422192164', '721298987',
+             '331934216', '6245525622', '254529427', '84009184', '553718569', '781111803', '567460171', '1284714872',
+             '890968039', '759979594', '1523726581', '649712285', '1370870887', '816759331', '52675602', '656848510',
+             '1075760068', '410607320', '969198876', '616343888', '177385643', '269843754', '923109939', '67315946',
+             '532530546', '293040858', '708880276', '326514691', '1348958796', '1746014272', '298438497', '1503797199',
+             '349839763', '156987730', '1431221402', '1215569323', '880779748', '656150299', '633824078', '297770994',
+             '225307612', '5689013799', '163757102', '1247017384', '1388088931', '1448536499', '1046820914',
+             '199988303', '1906962310', '84544698', '6398871389', '5190650025', '6890766957', '1921382130',
+             '1279765004', '230050949', '1642246482', '1114234569', '860075389', '1338446952', '339964677',
+             '6514392352', '266131407', '5237761025', '5235050718', '305469639', '267864051', '2041507926', '819005477',
+             '277951244', '821021159', '1122259853', '7244722107', '551473086', '6683724193', ]
+    cs = CS()
+    for user in users:
+        balance = await cs.get_card_balance(user)
+        if balance.balance == 0:
+            await cs.post_asset(Asset(
+                cardNumber=user,
+                amount=100 * 100,
+                type=AssetType.ADD,
+            ))
+
+
 if __name__ == '__main__':
     import asyncio
 
-    cs = CS()
-    user_id  = 1371688598
-    # print(asyncio.run(cs.create_card(CardInfo(
-    #     idcard=user_id,
-    #     idclient=user_id,
-    #     number=user_id,
-    # ))))
-    response = asyncio.run(cs.post_asset(Asset(
-        cardNumber=user_id,
-        amount=100 * 100,
-        type=AssetType.ADD,
-    ))
-    )
+    asyncio.run(test())

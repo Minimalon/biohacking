@@ -14,7 +14,7 @@ def kb_admin_panel(client: Clients) -> InlineKeyboardMarkup:
     keyboard.button(text='Создать пользователя на кассе', callback_data='create_user')
     keyboard.button(text='Аналитика', callback_data='analytics')
     keyboard.button(text='Публикация контента', callback_data='create_post')
-    keyboard.button(text='Операции с каталогом', callback_data='operation_catalogs')
+    # keyboard.button(text='Операции с каталогом', callback_data='operation_catalogs')
     if client.role.rolename in [ClientRolesEnum.SUPERADMIN, ]:
         keyboard.button(text='Управление ботом⚙️', callback_data='bot_settings')
     keyboard.adjust(1)
