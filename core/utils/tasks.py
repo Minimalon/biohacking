@@ -1,25 +1,23 @@
 import asyncio
 
-from celery import shared_task
+from aiogram.client.default import DefaultBotProperties
+
+from core.loggers.make_loggers import except_log
 from core.utils.celery_app import app
 from aiogram import Bot
-from aiogram.client.default import DefaultBotProperties
-from config import TelegramConfig
+from config import tg_cfg
 
 
 @app.task
-def add(x, y):
-    print('add')
-    return x + y
+def send_message():
+    try:
+        except_log.info('send_message')
+        bot = Bot(token=tg_cfg.TOKEN,
+                  default=DefaultBotProperties(
+                      parse_mode='HTML'
+                  ))
+        asyncio.run(bot.send_message(5263751490, '123'))
+    except Exception as e:
+        except_log.exception(e)
 
 
-@app.task
-def sub(x, y):
-    return x - y
-
-
-@app.task
-async def send_message():
-    tg_config = TelegramConfig()
-    bot = Bot(token=tg_config.TOKEN)
-    await bot.send_message(5263751490, '123')

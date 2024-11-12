@@ -16,7 +16,7 @@ router = Router()
 @router.callback_query(F.data == 'create_user')
 async def create_user(call: CallbackQuery, state: FSMContext, log: Logger):
     log.button('Создать пользователя на кассе')
-    cashes = await get_cashes('facts.artix_shopname = BioHacking')
+    cashes = await get_cashes('facts.artix_shopname ~ biohacking')
     log.debug(', '.join([str(cash.shopcode) for cash in cashes]))
     await call.message.edit_text('Выберите магазин', reply_markup=inline.kb_select_shop(cashes))
     await state.set_state(CreateUserState.select_shop)

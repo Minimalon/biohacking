@@ -162,7 +162,8 @@ async def update_start_menu(call: CallbackQuery, state: FSMContext, log: Logger)
     )
 
 
-async def after_registaration(user_id: int, user_name: str, message: Message, state: FSMContext, log: Logger, db: Database):
+async def after_registaration(user_id: int, user_name: str, message: Message, state: FSMContext, log: Logger,
+                              db: Database):
     data = await state.get_data()
 
     cs = CS()
@@ -198,9 +199,10 @@ async def after_registaration(user_id: int, user_name: str, message: Message, st
     ))
     if response.ok:
         log.success(f'Успешно добавлено {succes_reg_asset} рублей за регистрацию')
-        await message.answer(
-            texts.success_head + f"Вам начислены приветственные {succes_reg_asset} рублей за регистрацию.",
-            reply_markup=ReplyKeyboardRemove())
+        await message.bot.send_photo(message.chat.id,
+                                     photo=FSInputFile(Path(config.dir_path, 'files', '9.jpg')),
+                                     caption=texts.success_head + f"Вам начислены приветственные {succes_reg_asset} рублей за регистрацию.",
+                                     reply_markup=ReplyKeyboardRemove())
 
     else:
         log.error(f'Не удалось добавить {succes_reg_asset} рублей за регистрацию')

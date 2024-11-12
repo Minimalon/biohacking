@@ -3,9 +3,10 @@ from pathlib import Path
 
 from aiogram import F, Router
 from aiogram.filters import Command
-from aiogram.types import Message, BufferedInputFile, CallbackQuery
+from aiogram.types import Message, BufferedInputFile, CallbackQuery, FSInputFile
 from aiogram.utils.deep_linking import create_start_link
 
+import config
 from core.database.model import ClientRolesEnum
 from core.database.query import Database
 from core.database.referal_query import ReferralQuery
@@ -36,14 +37,16 @@ async def ref_menu(message: Message, log: Logger):
         f'За последние 30 дней: <code>{len(refs_mounth)}</code>\n'
         f'Всего: <code>{len(refs_total)}</code>\n'
     )
-    await message.answer(text, reply_markup=inline.kb_ref_menu())
+    await message.bot.send_photo(chat_id=message.chat.id,
+                                      photo=FSInputFile(Path(config.dir_path, 'files', '8.jpg')),
+                                      caption=text,
+                                      reply_markup=inline.kb_ref_menu())
 
 
 @router.callback_query(F.data == 'create_ref_link')
 async def create_ref_link(call: CallbackQuery, log: Logger):
     log.button('Создать реферальную ссылку')
     link = await create_start_link(call.message.bot, str(call.from_user.id), encode=True)
-    await call.message.delete()
     await call.message.bot.send_photo(
         call.message.chat.id,
         photo=BufferedInputFile(
@@ -51,3 +54,4 @@ async def create_ref_link(call: CallbackQuery, log: Logger):
             filename=f"{call.from_user.id}.png"),
         caption=f'<code>{link}</code>',
     )
+    await call.message.delete()

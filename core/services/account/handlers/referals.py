@@ -1,8 +1,11 @@
+from pathlib import Path
+
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, FSInputFile
 
+import config
 from core.artix.CS.cs import CS
 from core.database.bonus_query import BonusQuery
 from core.database.model import ClientRolesEnum
@@ -22,5 +25,7 @@ bonus_query = BonusQuery()
 @router.callback_query(F.data == 'referals_program')
 async def need_help(call: CallbackQuery, log: Logger):
     log.button('Парнерская программа')
-    await call.message.edit_text(await texts.referals_program(),
-                                 reply_markup=kb_ref_menu())
+    await call.message.bot.send_photo(chat_id=call.message.chat.id,
+                                      photo=FSInputFile(Path(config.dir_path, 'files', '8.jpg')),
+                                      caption=await texts.referals_program(),
+                                      reply_markup=kb_ref_menu())

@@ -24,8 +24,7 @@ from core.services.account.handlers.routers import routers as account_routers
 async def main():
     await init_models()
     await create_loggers()
-    tg_config = TelegramConfig()
-    bot = Bot(token=tg_config.TOKEN,
+    bot = Bot(token=tg_cfg.TOKEN,
               default=DefaultBotProperties(
                   parse_mode='HTML'
               ))
@@ -33,12 +32,13 @@ async def main():
     dp = Dispatcher(storage=storage)
     await bot.set_my_commands(client_commands, BotCommandScopeDefault())
     await set_commands_all_users(bot)
+
     # CRON
-    if not BotConfig().develope_mode:
+    if not DEVELOPE_MODE:
         scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
-        # scheduler.add_job(update_google_sheets, trigger='interval', hours=3, kwargs={'path': os.path.join(config.dir_path, 'core', 'cron', 'pythonapp.json')})
-        scheduler.add_job(referals_main, 'cron', hour='2', minute='0')
+        scheduler.add_job(referals_main, 'cron', hour='10', minute='0')
         scheduler.start()
+
     # Мидлвари
     dp.callback_query.middleware(CallBackMiddleware())
     dp.message.middleware(MessageMiddleware())
@@ -59,6 +59,9 @@ async def main():
 
     # Команда /checklist
     dp.include_routers(*checklist_routers)
+
+    if DEVELOPE_MODE:
+        await bot.send_message(5263751490, 'Бот запущен в режиме разработчика')
 
     await dp.start_polling(bot)
 
