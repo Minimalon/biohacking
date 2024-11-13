@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from aiogram import F, Router
-from aiogram.enums import ContentType
+from aiogram.enums import ContentType, ChatMemberStatus
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, FSInputFile, ReplyKeyboardRemove
@@ -18,10 +18,12 @@ router = Router()
 
 @router.message(Command('test'))
 async def test(message: Message, state: FSMContext, db: Database):
-    await message.bot.send_photo(message.chat.id,
-                                 photo=FSInputFile(Path(config.dir_path, 'files', '8.jpg')),
-                                 caption=texts.success_head + f"Вам начислены приветственные {100 * 100} рублей за регистрацию.",
-                                 reply_markup=ReplyKeyboardRemove())
+    user_channel_status = await message.bot.get_chat_member(chat_id='@bogonaft', user_id=message.from_user.id)
+
+    if user_channel_status.status != ChatMemberStatus.LEFT:
+        await message.answer('Спасибо за подписку!')
+    else:
+        await message.answer('Для начала подпишись на наш канал')
 
 
 @router.message(TestAcceptPhoto.photo, F.content_type.in_([ContentType.PHOTO]))

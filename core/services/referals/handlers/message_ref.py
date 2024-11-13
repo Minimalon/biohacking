@@ -52,6 +52,6 @@ async def create_ref_link(call: CallbackQuery, log: Logger):
         photo=BufferedInputFile(
             await get_buffer_qr(link),
             filename=f"{call.from_user.id}.png"),
-        caption=f'<code>{link}</code>',
+        caption=link,
     )
     await call.message.delete()
