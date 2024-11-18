@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import String, Column, DateTime, Boolean, Integer, BigInteger, ForeignKey, Enum, Numeric, TypeDecorator
+from sqlalchemy import String, Column, DateTime, Boolean, Integer, BigInteger, ForeignKey, Enum, Numeric, TypeDecorator, JSON
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -69,8 +69,8 @@ class Clients(Base):
         cascade="all, delete",
         uselist=True,
     )
-    bonus_awards = relationship(
-        "BonusAward",
+    ref_awards = relationship(
+        "ReferalAward",
         back_populates="client",
         cascade="all, delete",
         uselist=True,
@@ -277,14 +277,19 @@ class HelpTicket(Base):
     client = relationship("Clients", back_populates="help_tickets")
     ticket_status = relationship("HelpTicketStatus", back_populates="tickets", uselist=False)
 
-class BonusAward(Base):
+class ReferalAward(Base):
+    __tablename__ = 'referal_awards'
     id = Column(BigInteger, primary_key=True)
     date = Column(DateTime(timezone=True), server_default=func.now())
     user_id = Column(BigInteger, ForeignKey('clients.user_id', ondelete="CASCADE"), nullable=False)
-    award = Column(BigInteger, nullable=False)
+    from_user_id = Column(BigInteger, nullable=False)
+    amount = Column(BigInteger, nullable=False)
     type = Column(String, nullable=False)
+    level = Column(Integer, nullable=False)
+    commission_rate = Column(Numeric(10, 2), nullable=False)
+    additionalInfo = Column(JSON, nullable=True)
 
-    client = relationship("Clients", back_populates="bonus_awards")
+    client = relationship("Clients", back_populates="ref_awards")
 
 
 async def init_models():
