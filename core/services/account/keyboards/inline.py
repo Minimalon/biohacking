@@ -122,3 +122,4 @@ def kb_energy_guide() -> InlineKeyboardMarkup:
     keyboard.button(text='ПОЛУЧИТЬ!', url='https://docs.yandex.ru/docs/view?url=ya-disk-public%3A%2F%2F3RA%2FyJkTzZzhQMO7iUdyyinjiMbuKlU8lhJLaVLqoHq58QTtyyFWVbPNPv99oA5Zq%2FJ6bpmRyOJonT3VoXnDag%3D%3D%3A%2F%D0%93%D0%B0%D0%B8%CC%86%D0%B4_%D0%AD%D0%9D%D0%95%D0%A0%D0%93%D0%9E%D0%A3%D0%A2%D0%A0%D0%9E.pdf&name=%D0%93%D0%B0%D0%B8%CC%86%D0%B4_%D0%AD%D0%9D%D0%95%D0%A0%D0%93%D0%9E%D0%A3%D0%A2%D0%A0%D0%9E.pdf')
     keyboard.adjust(1)
     return keyboard.as_markup()
+

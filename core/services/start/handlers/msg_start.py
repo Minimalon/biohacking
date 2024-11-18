@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 from pathlib import Path
+import unicodedata
 
 from aiogram import F, Router
 from aiogram.filters import CommandStart, CommandObject, Command
@@ -178,7 +179,7 @@ async def after_registaration(user_id: int, user_name: str, message: Message, st
         idclient=user_id,
         birthday=data['reg_birthday'],
         phonenumber=client.phone_number,
-        name=user_name if data.get('reg_name') is None else data['reg_name'],
+        name=''.join(c for c in user_name if unicodedata.category(c) != 'So'),
     )
     cs_card = CardInfo(
         idcard=user_id,
@@ -230,3 +231,4 @@ async def clear(message: Message, state: FSMContext, log: Logger):
     except Exception as e:
         pass
     await state.clear()
+
