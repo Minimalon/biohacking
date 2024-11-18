@@ -5,14 +5,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, FSInputFile
 
 import config
-from core.database.bonus_query import BonusQuery
+from core.database.award_query import AwardQuery
 from core.loggers.bot_logger import Logger
 from core.services.account.keyboards import inline
 from core.utils import texts
 
 router = Router()
 
-bonus_query = BonusQuery()
+bonus_query = AwardQuery()
 
 
 @router.callback_query(F.data == 'energy_guide')
