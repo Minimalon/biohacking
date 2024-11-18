@@ -30,7 +30,7 @@ class Client(BaseModel):
     name: str = Field('', title='ФИО')
     text: str | None = Field(None, title='Текст')
     sex: int | None = Field(None, title='0 - мужской, 1 - женский')
-    birthday: datetime | None = Field(None, title='Дата рождения')
+    birthday: str | None = Field(None, title='Дата рождения')
     specialdate1name: str | None = Field(None, title='Название даты 1')
     specialdate2name: str | None = Field(None, title='Название даты 2')
     specialdate3name: str | None = Field(None, title='Название даты 3')

@@ -1,8 +1,6 @@
-from core.database.catalog_query import CatalogQuery
 from core.database.enums.checklists import EnumCheckListContentActions
 from core.database.model import ChecklistContent, CheckListComplete, TmcCatalog, Clients, HelpTicket, OrdersItems, \
     Orders
-from core.database.query import Database
 from core.services.start.pd_models.profile_bonuses import Profile
 
 error_head = f"➖➖➖➖🚨ОШИБКА🚨➖➖➖➖\n"
@@ -112,58 +110,58 @@ async def help_ticket_help(ticket: HelpTicket, client: Clients) -> str:
     )
 
 
-async def order_work(order: Orders, client: Clients, order_items: list[OrdersItems]) -> str:
-    full_name = f'{client.first_name} {client.last_name}' if client.last_name else client.first_name
-    text = (
-        f'➖➖➖ℹ️Клиентℹ️➖➖➖\n'
-        f'<b>Имя:</b> <code>{full_name}</code>\n'
-        f'<b>Номер телефона:</b> +{client.phone_number}\n'
-        f'➖➖➖ℹ️Заказℹ️➖➖➖\n'
-        f'<b>Номер Заказ:</b> <code>{order.id}</code>\n'
-        f'<b>Статус:</b> <code>{order.status.name}</code>\n'
-        f'<b>Дата создания:</b> <code>{order.date.strftime("%d.%m.%Y %H:%M:%S")}</code>\n'
-        f'➖➖➖ℹ️Составℹ️➖➖➖\n'
-    )
-    db = CatalogQuery()
-    for item in order_items:
-        product = await db.get_tmccatalog(item.productid)
-        catalog = await db.get_catalog(product.catalogid)
-        text += (
-            f'<b>Название:</b> <code>{product.title}</code>\n'
-            f'<b>Цена:</b> <code>{product.price}</code>\n'
-            f'<b>Количество:</b> <code>{item.quantity}</code>\n'
-            f'<b>Каталог:</b> <code>{catalog.title}</code>\n'
-            f'➖➖➖➖➖➖➖➖➖\n'
-        )
-    return text
-async def current_user_order(order: Orders, order_items: list[OrdersItems]) -> str:
-    text = (
-        f'➖➖➖ℹ️Заказℹ️➖➖➖\n'
-        f'<b>Номер Заказ:</b> <code>{order.id}</code>\n'
-        f'<b>Статус:</b> <code>{order.status.name}</code>\n'
-        f'<b>Дата создания:</b> <code>{order.date.strftime("%d.%m.%Y %H:%M:%S")}</code>\n'
-        f'➖➖➖ℹ️Составℹ️➖➖➖\n'
-    )
-    db = CatalogQuery()
-    for item in order_items:
-        product = await db.get_tmccatalog(item.productid)
-        catalog = await db.get_catalog(product.catalogid)
-        text += (
-            f'<b>Название:</b> <code>{product.title}</code>\n'
-            f'<b>Цена:</b> <code>{product.price}</code>\n'
-            f'<b>Количество:</b> <code>{item.quantity}</code>\n'
-            f'<b>Каталог:</b> <code>{catalog.title}</code>\n'
-            f'➖➖➖➖➖➖➖➖➖\n'
-        )
-    return text
+# async def order_work(order: Orders, client: Clients, order_items: list[OrdersItems]) -> str:
+#     full_name = f'{client.first_name} {client.last_name}' if client.last_name else client.first_name
+#     text = (
+#         f'➖➖➖ℹ️Клиентℹ️➖➖➖\n'
+#         f'<b>Имя:</b> <code>{full_name}</code>\n'
+#         f'<b>Номер телефона:</b> +{client.phone_number}\n'
+#         f'➖➖➖ℹ️Заказℹ️➖➖➖\n'
+#         f'<b>Номер Заказ:</b> <code>{order.id}</code>\n'
+#         f'<b>Статус:</b> <code>{order.status.name}</code>\n'
+#         f'<b>Дата создания:</b> <code>{order.date.strftime("%d.%m.%Y %H:%M:%S")}</code>\n'
+#         f'➖➖➖ℹ️Составℹ️➖➖➖\n'
+#     )
+#     db = CatalogQuery()
+#     for item in order_items:
+#         product = await db.get_tmccatalog(item.productid)
+#         catalog = await db.get_catalog(product.catalogid)
+#         text += (
+#             f'<b>Название:</b> <code>{product.title}</code>\n'
+#             f'<b>Цена:</b> <code>{product.price}</code>\n'
+#             f'<b>Количество:</b> <code>{item.quantity}</code>\n'
+#             f'<b>Каталог:</b> <code>{catalog.title}</code>\n'
+#             f'➖➖➖➖➖➖➖➖➖\n'
+#         )
+#     return text
+# async def current_user_order(order: Orders, order_items: list[OrdersItems]) -> str:
+#     text = (
+#         f'➖➖➖ℹ️Заказℹ️➖➖➖\n'
+#         f'<b>Номер Заказ:</b> <code>{order.id}</code>\n'
+#         f'<b>Статус:</b> <code>{order.status.name}</code>\n'
+#         f'<b>Дата создания:</b> <code>{order.date.strftime("%d.%m.%Y %H:%M:%S")}</code>\n'
+#         f'➖➖➖ℹ️Составℹ️➖➖➖\n'
+#     )
+#     db = CatalogQuery()
+#     for item in order_items:
+#         product = await db.get_tmccatalog(item.productid)
+#         catalog = await db.get_catalog(product.catalogid)
+#         text += (
+#             f'<b>Название:</b> <code>{product.title}</code>\n'
+#             f'<b>Цена:</b> <code>{product.price}</code>\n'
+#             f'<b>Количество:</b> <code>{item.quantity}</code>\n'
+#             f'<b>Каталог:</b> <code>{catalog.title}</code>\n'
+#             f'➖➖➖➖➖➖➖➖➖\n'
+#         )
+#     return text
 
 
 async def energy_awards() -> str:
     return (
         f'ПОЗДРАВЛЯЕМ! 🥳\n\n'
         f'Твой первый подарок - это 100 бонусов, которые ты можешь использовать завтра на 100% в нашем Нейробаре! Забери свой подарочный кислородный коктейль! 👍\n\n'
-        f'Твой второй подарок - это авторский Гайд «ЭНЕРГОУТРО» от идеолога компаний Миннебаева Равиля Расиховича. 🤩\n\n'
-        f'Благодаря данному Гайду - ты подымешь эффективность в несколько раз и «Хакнешь» свою жизнь на Новый Уровень! \n\n'
+        f'Твой второй подарок - это авторский Гайд «ЭНЕРГОУТРО» от идеолога компании Миннебаева Равиля Расиховича. 🤩\n\n'
+        f'Благодаря данному Гайду - ты поднимешь эффективность в несколько раз и «Хакнешь» свою жизнь на Новый Уровень! \n\n'
         f'Приятной практики.\n'
         f'Жди ещё новых подарков! 🎁\n\n'
         f'<i>«Раскрой свой потенциал!»</i>\n\n'
