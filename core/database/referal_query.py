@@ -92,7 +92,15 @@ async def main():
     refs_today = await ref_db.get_user_refs_by_date(date_now, date_now - timedelta(days=1), 5263751490)
     for ref in refs_today:
         print(ref.date)
+async def test_levels():
+    ref_db = ReferralQuery()
+    refers = await ref_db.get_all_referrals_by_level(447062998)
+    print(refers)
+    for ref in refers:
+        print(ref.user_id, ref.ref_id, ref.level, ref.commission_rate)
+
+
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    asyncio.run(test_levels())

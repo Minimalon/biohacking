@@ -55,14 +55,14 @@ async def asset_referals_by_levels(start_datetime: datetime, end_datetime: datet
                                 'type': AwardsType.REFERAL_SYSTEM.value,
                                 'level': str(ref_level.level),
                                 'commission_rate': str(ref_level.commission_rate),
-                                'from_user_id': str(uniq_ref.user_id)
+                                'from_user_id': str(ref_level.user_id)
                             }
                         )
                     )
                 await award_query.add_award(
                     ReferalAward(
                         user_id=uniq_ref.ref_id,
-                        from_user_id=uniq_ref.user_id,
+                        from_user_id=ref_level.user_id,
                         amount=awards,
                         type=AwardsType.REFERAL_SYSTEM.value,
                         level=ref_level.level,
