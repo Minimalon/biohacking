@@ -19,7 +19,6 @@ from core.loggers.bot_logger import Logger
 from core.services.start.keyboards import inline, reply
 from core.utils import texts
 from core.utils.qr import generate_qr
-from ..callback_data import Sex
 from ..pd_models.profile_bonuses import Profile
 from ..states import *
 from ...account.keyboards.inline import kb_account
@@ -231,4 +230,3 @@ async def clear(message: Message, state: FSMContext, log: Logger):
     except Exception as e:
         pass
     await state.clear()
-
