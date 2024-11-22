@@ -8,7 +8,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 if os.name == 'posix':
     DEVELOPE_MODE = os.getenv('DEVELOPE_MODE', 'False') == 'True'
 else:
-    DEVELOPE_MODE = False
+    DEVELOPE_MODE = True
 
 class BaseConfig(BaseSettings):
     model_config = SettingsConfigDict(

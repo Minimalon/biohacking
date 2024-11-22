@@ -44,12 +44,12 @@ async def asset_referals_by_levels(start_datetime: datetime, end_datetime: datet
             # ])
             if len(awards_list) > 0:
                 sum_amount = sum([a.amount for a in awards_list])
-                awards = round(sum_amount * ref_level.commission_rate, 0)
+                sum_assets = round(sum_amount * ref_level.commission_rate, 0)
                 if not config.DEVELOPE_MODE:
                     await cs.post_asset(
                         Asset(
                             cardNumber=uniq_ref.ref_id,
-                            amount=awards,
+                            amount=sum_assets,
                             type=AssetType.ADD,
                             additionalInfo={
                                 'type': AwardsType.REFERAL_SYSTEM.value,
@@ -59,47 +59,73 @@ async def asset_referals_by_levels(start_datetime: datetime, end_datetime: datet
                             }
                         )
                     )
-                await award_query.add_award(
-                    ReferalAward(
-                        user_id=uniq_ref.ref_id,
-                        from_user_id=ref_level.user_id,
-                        amount=awards,
-                        type=AwardsType.REFERAL_SYSTEM.value,
-                        level=ref_level.level,
-                        commission_rate=ref_level.commission_rate
+                    await award_query.add_award(
+                        ReferalAward(
+                            user_id=uniq_ref.ref_id,
+                            from_user_id=ref_level.user_id,
+                            amount=sum_assets,
+                            type=AwardsType.REFERAL_SYSTEM.value,
+                            level=ref_level.level,
+                            commission_rate=ref_level.commission_rate
+                        )
                     )
-                )
 
                 refAwards_log.info(
-                    f'Вознаграждение пользователя: {uniq_ref.ref_id} - {awards} за уровень {ref_level.level} с комиссией {ref_level.commission_rate}')
-                notify.append([ref_level, awards])
+                    f'Вознаграждение пользователя: {uniq_ref.ref_id} - {sum_assets} за уровень {ref_level.level} с комиссией {ref_level.commission_rate}')
+                notify.append([ref_level, sum_assets])
             else:
                 refAwards_log.info(
                     f'Вознаграждение пользователя: {uniq_ref.ref_id} - 0 за уровень {ref_level.level} с комиссией {ref_level.commission_rate}')
 
         if notify:
             levels = defaultdict(dict)
-            for user, awards in notify:
-                levels[user.level] = awards
+            for user, sum_assets in notify:
+                levels[user.level] = sum_assets
             content = as_marked_section(
                 texts.awards_head.strip(),
-                *[as_key_value(f'Уровень {key}', f'{value / 100} руб') for key, value in levels.items()]
+                *[as_key_value(f'Уровень {key}', f'{value / 100} руб') for key, value in levels.items()],
             )
-            try:
-                bot = Bot(token=tg_cfg.TOKEN,
-                          default=DefaultBotProperties(
-                              parse_mode='HTML'
-                          ))
-                if config.DEVELOPE_MODE:
+            assets_message = f'➖➖➖📋Операции📋➖➖➖\n'
+            for asset in assets:
+                client = await db.get_client(int(asset.cardNumber))
+                assets_message += f'➖<b>Дата</b>: {asset.time.astimezone(timezone.utc).strftime("%d.%m.%Y %H:%M:%S")}\n'
+                assets_message += f'➖<b>Сумма</b>: {asset.amount / 100} руб\n'
+                # assets_message += f'➖<b>Тип</b>: {asset.type}\n'
+                assets_message += f'➖<b>Номер карты</b>: {asset.cardNumber}\n'
+                assets_message += f'➖<b>Имя</b>: {client.first_name}\n'
+                assets_message += f'➖<b>Телефон</b>: {client.phone_number}\n'
+                assets_message += '➖➖➖➖➖➖➖➖\n'
+
+            bot = Bot(token=tg_cfg.TOKEN,
+                      default=DefaultBotProperties(
+                          parse_mode='HTML'
+                      ))
+            if config.DEVELOPE_MODE:
+                try:
                     await bot.send_photo(5263751490,
                                          photo=FSInputFile(Path(config.dir_path, 'files', '8.jpg')),
                                          **content.as_kwargs(text_key='caption', entities_key='caption_entities'))
-                else:
+                except Exception as e:
+                    refAwards_log.exception(e)
+                try:
+                    await bot.send_photo(5263751490,
+                                         photo=FSInputFile(Path(config.dir_path, 'files', '1.jpg')),
+                                         caption=assets_message)
+                except Exception as e:
+                    refAwards_log.exception(e)
+            else:
+                try:
                     await bot.send_photo(uniq_ref.ref_id,
                                          photo=FSInputFile(Path(config.dir_path, 'files', '8.jpg')),
                                          **content.as_kwargs(text_key='caption', entities_key='caption_entities'))
-            except Exception as e:
-                refAwards_log.exception(e)
+                except Exception as e:
+                    refAwards_log.exception(e)
+                try:
+                    await bot.send_photo(uniq_ref.ref_id,
+                                         photo=FSInputFile(Path(config.dir_path, 'files', '1.jpg')),
+                                         caption=assets_message)
+                except Exception as e:
+                    refAwards_log.exception(e)
 
 
 async def referals_main():
@@ -121,5 +147,5 @@ async def referals_main():
 
 if __name__ == '__main__':
     import asyncio
-
+    print(config.DEVELOPE_MODE)
     asyncio.run(referals_main())
