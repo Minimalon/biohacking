@@ -1,3 +1,4 @@
+from core.artix.CS.pd_model import AssetExtended, AssetType
 from core.database.enums.checklists import EnumCheckListContentActions
 from core.database.model import ChecklistContent, CheckListComplete, TmcCatalog, Clients, HelpTicket, OrdersItems, \
     Orders
@@ -186,3 +187,30 @@ async def referals_program() -> str:
         f'Бонусы реализуются на 30% на всю продукцию и на 100% на все коктейли в «НейроБаре».\n\n'
         f'❗️На специальных условиях для Агентов и Блогеров можно вывести Бонусы в реальные деньги💰'
     )
+
+async def histrory_assets(assets: list[AssetExtended]) -> list[str]:
+    result = []
+    text = '➖➖➖ℹ️Транзакцииℹ️➖➖➖\n'
+    for asset in assets:
+        text += f'📅<b>Дата:</b> {asset.time.strftime("%d.%m.%Y %H:%M:%S")}\n'
+        text += f'💰<b>Сумма:</b> {asset.amount / 100} руб\n'
+        if asset.type == AssetType.ADD:
+            type = 'Пополнение'
+        elif asset.type == AssetType.BACK:
+            type = 'Возврат'
+        elif asset.type == AssetType.SUB:
+            type = 'Списание'
+        elif asset.type == AssetType.PAY:
+            type = 'Оплата'
+        elif asset.type == AssetType.FIRED:
+            type = 'Отчисление'
+        else:
+            type = 'Неизвестная операция'
+        text += f'🔄<b>Операция:</b> {type}\n\n'
+        if len(text) > 3800:
+            result.append(text)
+            text = ''
+    result.append(text)
+    return result
+
+

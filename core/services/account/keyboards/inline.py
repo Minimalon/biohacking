@@ -33,7 +33,14 @@ def kb_orders() -> InlineKeyboardMarkup:
 
 def kb_bonus_card() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
+    keyboard.button(text='История операций📋', callback_data='client_history_assets')
     keyboard.button(text='Обновить информацию🔄', callback_data='update_start_menu')
+    keyboard.adjust(1)
+    return keyboard.as_markup()
+
+def kb_history_assets() -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.button(text='Назад⬅️', callback_data='bonus_card')
     keyboard.adjust(1)
     return keyboard.as_markup()
 
