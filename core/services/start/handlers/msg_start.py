@@ -214,12 +214,12 @@ async def after_registaration(user_id: int, user_name: str, message: Message, st
     if data.get('deeplink') is not None:
         log.debug(f'Пользователю {user_id} добавлен реферал {data["deeplink"]}')
         await db.add_referral(user_id, int(data['deeplink']))
+        await state.update_data(deeplink=None)
 
     log.success(f"Пользователь {user_id} зарегистрирован")
     await message.answer(await texts.account(user_name),
                          reply_markup=kb_account())
     await set_command_for_user(message.bot, message.chat.id)
-    await state.clear()
 
 
 @router.message(Command('clear'))
