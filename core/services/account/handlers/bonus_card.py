@@ -8,16 +8,17 @@ from core.utils.qr import generate_qr
 from ..keyboards import inline, reply
 from core.loggers.bot_logger import Logger
 from core.utils import texts
+from ..keyboards.inline import kb_history_assets
 from ...start.pd_models.profile_bonuses import Profile
 from ...start.states import RegistrationStates
 
 router = Router()
+cs = CS()
 
 
 @router.callback_query(F.data == 'bonus_card')
 async def bonus_card(call: CallbackQuery, state: FSMContext, log: Logger):
     log.button('Бонусная карта')
-    cs = CS()
 
     cs_client = await cs.get_client_by_id(call.from_user.id)
     cs_client_card = await cs.get_card_by_id(call.from_user.id)
@@ -44,3 +45,12 @@ async def bonus_card(call: CallbackQuery, state: FSMContext, log: Logger):
         reply_markup=inline.kb_bonus_card()
     )
     await call.answer()
+
+
+@router.callback_query(F.data == 'client_history_assets')
+async def client_history_assets(call: CallbackQuery, state: FSMContext, log: Logger):
+    log.button('История операций')
+    await state.set_state(RegistrationStates.name)
+    assets = await cs.get_assets(call.from_user.id, sortByTimeDescending=True)
+    for msg in await texts.histrory_assets(assets):
+        await call.message.answer(msg, reply_markup=kb_history_assets())
