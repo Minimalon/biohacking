@@ -8,11 +8,16 @@ from aiogram.filters import CommandStart, CommandObject, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.utils.payload import decode_payload
+from aiogram import Bot
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, ReplyKeyboardRemove
 
 import config
 from core.artix.CS.cs import CS
 from core.artix.CS.pd_model import Client, CardInfo, CardBalance, Asset, AssetType, AwardsType
 from core.commands.commands import set_command_for_user
+from core.database.award_query import AwardQuery
+from core.database.model import RegistrationAssets
 from core.database.query import Database
 from core.filters.is_contact import IsTrueContact
 from core.loggers.bot_logger import Logger
@@ -24,10 +29,7 @@ from ..states import *
 from ...account.keyboards.inline import kb_account
 
 router = Router()
-
-from aiogram import Bot
-from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove
+aq = AwardQuery()
 
 
 async def get_phone(client_phone):
@@ -189,26 +191,18 @@ async def after_registaration(user_id: int, user_name: str, message: Message, st
     await cs.create_card(cs_card)
 
     succes_reg_asset = 100
-    response = await cs.post_asset(Asset(
-        cardNumber=user_id,
-        amount=succes_reg_asset * 100,
-        type=AssetType.ADD,
-        additionalInfo={
-            'type': AwardsType.REGISTRATION
-        }
-    ))
-    if response.ok:
-        log.success(f'Успешно добавлено {succes_reg_asset} рублей за регистрацию')
-        await message.bot.send_photo(message.chat.id,
-                                     photo=FSInputFile(Path(config.dir_path, 'files', '9.jpg')),
-                                     caption=texts.success_head + f"Вам начислены приветственные {succes_reg_asset} рублей за регистрацию.",
-                                     reply_markup=ReplyKeyboardRemove())
-
-    else:
-        log.error(f'Не удалось добавить {succes_reg_asset} рублей за регистрацию')
-        await message.answer(
-            texts.error_head + f'Не удалось добавить {succes_reg_asset} рублей за регистрацию.',
-            reply_markup=ReplyKeyboardRemove())
+    await aq.add_registration_award(
+        RegistrationAssets(
+            user_id=user_id,
+            amount=succes_reg_asset * 100
+        )
+    )
+    await message.bot.send_photo(message.chat.id,
+                                 photo=FSInputFile(Path(config.dir_path, 'files', '8.jpg')),
+                                 caption=texts.information_head + f"Спасибо за регистрацию!\n"
+                                                                  f"Завтра вам будет начислено {succes_reg_asset} баллов за регистрацию.\n"
+                                                                  f"С нетерпением ждём вашего визита!",
+                                 reply_markup=ReplyKeyboardRemove())
     if data.get('deeplink') is not None:
         log.debug(f'deeplink = {data.get("deeplink")}')
     if data.get('deeplink') is not None:
