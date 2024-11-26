@@ -22,28 +22,31 @@ ref_query = ReferralQuery()
 db = Database()
 award_query = AwardQuery()
 
+bot = Bot(token=tg_cfg.TOKEN,
+          default=DefaultBotProperties(
+              parse_mode='HTML'
+          ))
+
 
 async def asset_referals_by_levels(start_datetime: datetime, end_datetime: datetime):
+    await ref_query.delete_double_referrals()
     uniq_referals = await ref_query.get_all_uniq_referrals()
     cs = CS()
     for uniq_ref in uniq_referals:
         notify = []
+        all_assets = []
+        clients_cache = {}
+
         for ref_level in await ref_query.get_all_referrals_by_level(uniq_ref.ref_id):
             assets = await cs.get_assets(ref_level.user_id, type=AssetType.ADD)
 
-            awards_list = []
-            for asset in assets:
-                if start_datetime <= asset.time.astimezone(
-                        timezone.utc) <= end_datetime and asset.type == AssetType.ADD:
-                    awards_list.append(asset)
+            filtered_awards = [asset
+                for asset in assets
+                if start_datetime <= asset.time.astimezone(timezone.utc) <= end_datetime
+            ]
 
-            # sum_amount = sum([
-            #     a.amount
-            #     for a in assets
-            #     if start_datetime <= a.time.astimezone(timezone.utc) <= end_datetime
-            # ])
-            if len(awards_list) > 0:
-                sum_amount = sum([a.amount for a in awards_list])
+            if filtered_awards:
+                sum_amount = sum(a.amount for a in filtered_awards)
                 sum_assets = round(sum_amount * ref_level.commission_rate, 0)
                 if not config.DEVELOPE_MODE:
                     await cs.post_asset(
@@ -72,60 +75,50 @@ async def asset_referals_by_levels(start_datetime: datetime, end_datetime: datet
 
                 refAwards_log.info(
                     f'Вознаграждение пользователя: {uniq_ref.ref_id} - {sum_assets} за уровень {ref_level.level} с комиссией {ref_level.commission_rate}')
-                notify.append([ref_level, sum_assets])
+                notify.append((ref_level, sum_assets))
+                all_assets.extend(filtered_awards)
             else:
                 refAwards_log.info(
                     f'Вознаграждение пользователя: {uniq_ref.ref_id} - 0 за уровень {ref_level.level} с комиссией {ref_level.commission_rate}')
 
         if notify:
-            levels = defaultdict(dict)
-            for user, sum_assets in notify:
-                levels[user.level] = sum_assets
+            levels = {level.level: sum_assets for level, sum_assets in notify}
             content = as_marked_section(
                 texts.awards_head.strip(),
-                *[as_key_value(f'Уровень {key}', f'{value / 100} руб') for key, value in levels.items()],
+                *[
+                    as_key_value(f'Уровень {key}', f'{value / 100} руб')
+                    for key, value in levels.items()
+                ],
             )
             assets_message = f'➖➖➖📋Операции📋➖➖➖\n'
             for asset in assets:
-                client = await db.get_client(int(asset.cardNumber))
-                assets_message += f'➖<b>Дата</b>: {asset.time.astimezone(timezone.utc).strftime("%d.%m.%Y %H:%M:%S")}\n'
-                assets_message += f'➖<b>Сумма</b>: {asset.amount / 100} руб\n'
-                # assets_message += f'➖<b>Тип</b>: {asset.type}\n'
-                assets_message += f'➖<b>Номер карты</b>: {asset.cardNumber}\n'
-                assets_message += f'➖<b>Имя</b>: {client.first_name}\n'
-                assets_message += f'➖<b>Телефон</b>: {client.phone_number}\n'
-                assets_message += '➖➖➖➖➖➖➖➖\n'
+                card_number = int(asset.cardNumber)
+                client = clients_cache.get(card_number)
+                if not client:
+                    client = await db.get_client(card_number)
+                    clients_cache[card_number] = client
+                assets_message += (
+                    f'➖<b>Дата</b>: {asset.time.astimezone(timezone.utc).strftime("%d.%m.%Y %H:%M:%S")}\n'
+                    f'➖<b>Сумма</b>: {asset.amount / 100} руб\n'
+                    f'➖<b>Номер карты</b>: {asset.cardNumber}\n'
+                    f'➖<b>Имя</b>: {client.first_name}\n'
+                    f'➖<b>Телефон</b>: {client.phone_number}\n'
+                    '➖➖➖➖➖➖➖➖\n'
+                )
 
-            bot = Bot(token=tg_cfg.TOKEN,
-                      default=DefaultBotProperties(
-                          parse_mode='HTML'
-                      ))
-            if config.DEVELOPE_MODE:
-                try:
-                    await bot.send_photo(5263751490,
-                                         photo=FSInputFile(Path(config.dir_path, 'files', '8.jpg')),
-                                         **content.as_kwargs(text_key='caption', entities_key='caption_entities'))
-                except Exception as e:
-                    refAwards_log.exception(e)
-                try:
-                    await bot.send_photo(5263751490,
-                                         photo=FSInputFile(Path(config.dir_path, 'files', '1.jpg')),
-                                         caption=assets_message)
-                except Exception as e:
-                    refAwards_log.exception(e)
-            else:
-                try:
-                    await bot.send_photo(uniq_ref.ref_id,
-                                         photo=FSInputFile(Path(config.dir_path, 'files', '8.jpg')),
-                                         **content.as_kwargs(text_key='caption', entities_key='caption_entities'))
-                except Exception as e:
-                    refAwards_log.exception(e)
-                try:
-                    await bot.send_photo(uniq_ref.ref_id,
-                                         photo=FSInputFile(Path(config.dir_path, 'files', '1.jpg')),
-                                         caption=assets_message)
-                except Exception as e:
-                    refAwards_log.exception(e)
+            user_id = uniq_ref.ref_id if not config.DEVELOPE_MODE else 5263751490
+            try:
+                await bot.send_photo(user_id,
+                                     photo=FSInputFile(Path(config.dir_path, 'files', '8.jpg')),
+                                     **content.as_kwargs(text_key='caption', entities_key='caption_entities'))
+            except Exception as e:
+                refAwards_log.exception(e)
+            try:
+                await bot.send_photo(user_id,
+                                     photo=FSInputFile(Path(config.dir_path, 'files', '1.jpg')),
+                                     caption=assets_message)
+            except Exception as e:
+                refAwards_log.exception(e)
 
 
 async def referals_main():

@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import String, Column, DateTime, Boolean, Integer, BigInteger, ForeignKey, Enum, Numeric, TypeDecorator, JSON
+from sqlalchemy import String, Column, DateTime, Boolean, Integer, BigInteger, ForeignKey, Enum, Numeric, TypeDecorator, JSON, Date
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -71,6 +71,12 @@ class Clients(Base):
     )
     ref_awards = relationship(
         "ReferalAward",
+        back_populates="client",
+        cascade="all, delete",
+        uselist=True,
+    )
+    registration_assets = relationship(
+        "RegistrationAssets",
         back_populates="client",
         cascade="all, delete",
         uselist=True,
@@ -291,6 +297,15 @@ class ReferalAward(Base):
 
     client = relationship("Clients", back_populates="ref_awards")
 
+class RegistrationAssets(Base):
+    __tablename__ = 'registration_assets'
+    id = Column(BigInteger, primary_key=True)
+    created_at = Column(Date, server_default=func.now())
+    user_id = Column(BigInteger, ForeignKey('clients.user_id', ondelete="CASCADE"), nullable=False)
+    amount = Column(Integer, nullable=False)
+    sended = Column(Boolean, default=False)
+
+    client = relationship("Clients", back_populates="registration_assets")
 
 async def init_models():
     async with engine.begin() as conn:

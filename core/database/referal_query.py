@@ -2,7 +2,7 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime, timedelta, date
 
-from sqlalchemy import text, and_
+from sqlalchemy import text, and_, delete
 from sqlalchemy.future import select
 
 from core.database.model import Referrals
@@ -84,6 +84,11 @@ class ReferralQuery(Database):
         async with self.AsyncSession() as session:
             result = await session.execute(select(Referrals).distinct(Referrals.ref_id))
             return result.scalars().all()
+
+    async def delete_double_referrals(self) -> None:
+        async with self.AsyncSession() as session:
+            await session.execute(delete(Referrals).where(Referrals.ref_id == Referrals.user_id))
+            await session.commit()
 
 
 async def main():
