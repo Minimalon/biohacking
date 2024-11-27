@@ -6,6 +6,7 @@ class RegistrationStates(StatesGroup):
     wait_name = State()
     name = State()
     sex = State()
+    none = State()
 
 
 class ClientCatalogState(StatesGroup):
