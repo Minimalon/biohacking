@@ -115,7 +115,8 @@ async def get_birthday(message: Message, state: FSMContext, log: Logger):
     except ValueError:
         log.error(f"Неверный формат дня рождения '{message.text}'")
         await message.answer(f'{texts.error_head}'
-                             f'Неверный формат дня рождения\nПример: 01.01.1990')
+                             f'Неверный формат дня рождения\nПример: 01.01.1990\n'
+                             f'Отправьте ответным сообщением дату рождения.')
         return
     await state.update_data(reg_birthday=bd.strftime('%Y-%m-%d'))
     await state.set_state(RegistrationStates.wait_name)
@@ -187,7 +188,14 @@ async def after_registaration(user_id: int, user_name: str, message: Message, st
         number=user_id,
         idclient=user_id,
     )
-    await cs.create_client(cs_client)
+    client_response = await cs.create_client(cs_client)
+    if not client_response.ok:
+        log.error(f'Не получилось добавить клиента в бонусную систему')
+        log.info('Напиши ответным сообщением ваше Имя без смайликов')
+        await message.answer(texts.error_head + 'Ваше имя не было добавлено в бонусную систему\n'
+                             'Напиши ответным сообщением ваше <b>Имя</b> без смайликов')
+        await state.set_state(RegistrationStates.name)
+        return
     await cs.create_card(cs_card)
 
     succes_reg_asset = 100

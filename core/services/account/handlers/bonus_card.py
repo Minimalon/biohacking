@@ -26,9 +26,20 @@ async def bonus_card(call: CallbackQuery, state: FSMContext, log: Logger):
 
     if not cs_client or not cs_client_card or not cs_card_balance:
         log.error(f"Пользователь {call.from_user.id} не зарегистрирован в бонусной системе")
-        log.debug(cs_client.model_dump_json())
-        log.debug(cs_client_card.model_dump_json())
-        log.debug(cs_card_balance.model_dump_json())
+
+        if cs_client is not None:
+            log.debug(cs_client.model_dump_json())
+        else:
+            log.debug(f'cs_client = {cs_client}')
+        if cs_client_card is not None:
+            log.debug(cs_client_card.model_dump_json())
+        else:
+            log.debug(f'cs_client_card = {cs_client_card}')
+        if cs_card_balance is not None:
+            log.debug(cs_card_balance.model_dump_json())
+        else:
+            log.debug(f'cs_card_balance = {cs_card_balance}')
+
         await state.set_state(RegistrationStates.birthday)
         log.info('Введите день рождения')
         await call.message.edit_text('Введите день рождения\nПример: 01.01.1990')
