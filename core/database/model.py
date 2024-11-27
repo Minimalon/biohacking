@@ -307,6 +307,14 @@ class RegistrationAssets(Base):
 
     client = relationship("Clients", back_populates="registration_assets")
 
+class AssetNotify(Base):
+    __tablename__ = 'asset_notify'
+    id = Column(BigInteger, primary_key=True)
+    date = Column(Date, server_default=func.now())
+    user_id = Column(BigInteger, ForeignKey('clients.user_id', ondelete="CASCADE"), nullable=False)
+    amount = Column(Integer, nullable=False)
+    sended = Column(Boolean, default=False)
+
 async def init_models():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

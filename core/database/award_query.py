@@ -6,7 +6,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 
 from core.artix.CS.pd_model import AwardsType
-from core.database.model import ReferalAward, RegistrationAssets
+from core.database.model import ReferalAward, RegistrationAssets, AssetNotify
 from core.database.query import Database
 from typing import List
 
@@ -37,4 +37,16 @@ class AwardQuery(Database):
     async def set_reg_sended(self, id: int) -> None:
         async with self.AsyncSession() as session:
             await session.execute(update(RegistrationAssets).where(RegistrationAssets.id == id).values(sended = True))
+            await session.commit()
+
+    async def get_asset_notifys(self) -> List[AssetNotify] | None:
+        async with self.AsyncSession() as session:
+            result = await session.execute(
+                select(AssetNotify).where(AssetNotify.sended == False)
+            )
+            return result.scalars().all()
+
+    async def set_sended_notify(self, id: int) -> None:
+        async with self.AsyncSession() as session:
+            await session.execute(update(AssetNotify).where(AssetNotify.id == id).values(sended = True))
             await session.commit()
