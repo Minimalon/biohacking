@@ -7,7 +7,9 @@ from aiogram.types import BotCommandScopeDefault
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from core.commands.commands import set_commands_all_users, client_commands
+from core.cron.asset_notify import notify_assets
 from core.cron.asset_referals_by_levels import referals_main
+from core.cron.registration_assets import registration_assets
 from core.database.model import init_models
 from config import *
 from core.loggers.make_loggers import create_loggers
@@ -37,6 +39,8 @@ async def main():
     if not DEVELOPE_MODE:
         scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
         scheduler.add_job(referals_main, 'cron', hour='10', minute='0')
+        scheduler.add_job(registration_assets, 'cron', hour='11', minute='0')
+        scheduler.add_job(notify_assets, 'cron', minute='*')
         scheduler.start()
 
     # Мидлвари

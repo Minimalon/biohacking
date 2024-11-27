@@ -19,18 +19,20 @@ bot = Bot(token=config.tg_cfg.TOKEN,
 aq = AwardQuery()
 cs = CS()
 
+
 async def registration_assets():
     reg_awards = await aq.get_reg_awards()
     for award in reg_awards:
         try:
-            await cs.post_asset(Asset(
-                cardNumber=award.user_id,
-                amount=award.amount,
-                type=AssetType.ADD,
-                additionalInfo={
-                    'type': AwardsType.REGISTRATION
-                }
-            ))
+            if not config.DEVELOPE_MODE:
+                await cs.post_asset(Asset(
+                    cardNumber=award.user_id,
+                    amount=award.amount,
+                    type=AssetType.ADD,
+                    additionalInfo={
+                        'type': AwardsType.REGISTRATION
+                    }
+                ))
             msg = (
                 f'{texts.success_head}'
                 f'Благодарим за вчерашнюю покупку!\n'
@@ -44,6 +46,8 @@ async def registration_assets():
         except Exception as e:
             refAwards_log.exception(e)
 
+
 if __name__ == '__main__':
     import asyncio
+
     asyncio.run(registration_assets())
