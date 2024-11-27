@@ -214,6 +214,7 @@ async def after_registaration(user_id: int, user_name: str, message: Message, st
     await message.answer(await texts.account(user_name),
                          reply_markup=kb_account())
     await set_command_for_user(message.bot, message.chat.id)
+    await state.set_state(RegistrationStates.none)
 
 
 @router.message(Command('clear'))

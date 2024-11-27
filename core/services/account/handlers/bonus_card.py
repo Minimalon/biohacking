@@ -30,6 +30,7 @@ async def bonus_card(call: CallbackQuery, state: FSMContext, log: Logger):
         log.debug(cs_client_card.model_dump_json())
         log.debug(cs_card_balance.model_dump_json())
         await state.set_state(RegistrationStates.birthday)
+        log.info('Введите день рождения')
         await call.message.edit_text('Введите день рождения\nПример: 01.01.1990')
         return
 
