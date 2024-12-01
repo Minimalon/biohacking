@@ -60,9 +60,8 @@ async def bonus_card(call: CallbackQuery, state: FSMContext, log: Logger):
 
 
 @router.callback_query(F.data == 'client_history_assets')
-async def client_history_assets(call: CallbackQuery, state: FSMContext, log: Logger):
+async def client_history_assets(call: CallbackQuery, log: Logger):
     log.button('История операций')
-    await state.set_state(RegistrationStates.name)
     assets = await cs.get_assets(call.from_user.id, sortByTimeDescending=True)
     for msg in await texts.histrory_assets(assets):
         await call.message.answer(msg, reply_markup=kb_history_assets())

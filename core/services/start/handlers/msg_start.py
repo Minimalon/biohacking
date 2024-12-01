@@ -199,18 +199,19 @@ async def after_registaration(user_id: int, user_name: str, message: Message, st
     await cs.create_card(cs_card)
 
     succes_reg_asset = 100
-    await aq.add_registration_award(
-        RegistrationAssets(
-            user_id=user_id,
-            amount=succes_reg_asset * 100
+    if aq.get_reg_award_by_user_id(user_id) is None:
+        await aq.add_registration_award(
+            RegistrationAssets(
+                user_id=user_id,
+                amount=succes_reg_asset * 100
+            )
         )
-    )
-    await message.bot.send_photo(message.chat.id,
-                                 photo=FSInputFile(Path(config.dir_path, 'files', '8.jpg')),
-                                 caption=texts.information_head + f"Спасибо за регистрацию!\n"
-                                                                  f"Завтра вам будет начислено {succes_reg_asset} баллов за регистрацию.\n"
-                                                                  f"С нетерпением ждём вашего визита!",
-                                 reply_markup=ReplyKeyboardRemove())
+        await message.bot.send_photo(message.chat.id,
+                                     photo=FSInputFile(Path(config.dir_path, 'files', '8.jpg')),
+                                     caption=texts.information_head + f"Спасибо за регистрацию!\n"
+                                                                      f"Завтра вам будет начислено {succes_reg_asset} баллов за регистрацию.\n"
+                                                                      f"С нетерпением ждём вашего визита!",
+                                     reply_markup=ReplyKeyboardRemove())
     if data.get('deeplink') is not None:
         log.debug(f'deeplink = {data.get("deeplink")}')
     if data.get('deeplink') is not None:

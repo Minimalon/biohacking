@@ -34,6 +34,13 @@ class AwardQuery(Database):
             )
             return result.scalars().all()
 
+    async def get_reg_award_by_user_id(self, user_id: int) -> RegistrationAssets | None:
+        async with self.AsyncSession() as session:
+            result = await session.execute(
+                select(RegistrationAssets).where(RegistrationAssets.user_id == user_id)
+            )
+            return result.scalars().first()
+
     async def set_reg_sended(self, id: int) -> None:
         async with self.AsyncSession() as session:
             await session.execute(update(RegistrationAssets).where(RegistrationAssets.id == id).values(sended = True))
