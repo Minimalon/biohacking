@@ -39,7 +39,7 @@ async def main():
     if not DEVELOPE_MODE:
         scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
         scheduler.add_job(referals_main, 'cron', hour='10', minute='0')
-        scheduler.add_job(registration_assets, 'cron', hour='11', minute='0')
+        scheduler.add_job(registration_assets, 'cron', hour='11, 16', minute='0')
         scheduler.add_job(notify_assets, 'cron', minute='*')
         scheduler.start()
 

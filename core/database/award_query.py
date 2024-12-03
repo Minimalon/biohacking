@@ -1,3 +1,4 @@
+import asyncio
 import enum
 from datetime import date
 
@@ -57,3 +58,10 @@ class AwardQuery(Database):
         async with self.AsyncSession() as session:
             await session.execute(update(AssetNotify).where(AssetNotify.id == id).values(sended = True))
             await session.commit()
+
+async def test():
+    aq = AwardQuery()
+    print(await aq.get_reg_award_by_user_id(5263751490) is None)
+
+if __name__ == '__main__':
+    asyncio.run(test())

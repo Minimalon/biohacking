@@ -199,7 +199,8 @@ async def after_registaration(user_id: int, user_name: str, message: Message, st
     await cs.create_card(cs_card)
 
     succes_reg_asset = 100
-    if aq.get_reg_award_by_user_id(user_id) is None:
+    if await aq.get_reg_award_by_user_id(user_id) is None:
+        log.debug(f'Пользователю {user_id} будут добавленны баллы за регистрацию')
         await aq.add_registration_award(
             RegistrationAssets(
                 user_id=user_id,
