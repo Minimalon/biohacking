@@ -25,7 +25,7 @@ async def registration_assets():
     for award in reg_awards:
         try:
             if not config.DEVELOPE_MODE:
-                await cs.post_asset(Asset(
+                response = await cs.post_asset(Asset(
                     cardNumber=award.user_id,
                     amount=award.amount,
                     type=AssetType.ADD,
@@ -33,16 +33,17 @@ async def registration_assets():
                         'type': AwardsType.REGISTRATION
                     }
                 ))
-            msg = (
-                f'{texts.success_head}'
-                f'Благодарим за вчерашнюю покупку!\n'
-                f'Сегодня вам пришли подарочные {award.amount / 100} баллов. Используйте их на кислородные коктейли в НейроБаре со 100% скидкой.\n'
-                f'С нетерпением ждём вашего визита!'
-            )
-            await bot.send_photo(award.user_id,
-                                 photo=FSInputFile(Path(config.dir_path, 'files', '9.jpg')),
-                                 caption=msg)
-            await aq.set_reg_sended(award.id)
+                if response.ok:
+                    await aq.set_reg_sended(award.id)
+                    msg = (
+                        f'{texts.success_head}'
+                        f'Благодарим за вчерашнюю покупку!\n'
+                        f'Сегодня вам пришли подарочные {award.amount / 100} баллов. Используйте их на кислородные коктейли в НейроБаре со 100% скидкой.\n'
+                        f'С нетерпением ждём вашего визита!'
+                    )
+                    await bot.send_photo(award.user_id,
+                                         photo=FSInputFile(Path(config.dir_path, 'files', '9.jpg')),
+                                         caption=msg)
         except Exception as e:
             refAwards_log.exception(e)
 
