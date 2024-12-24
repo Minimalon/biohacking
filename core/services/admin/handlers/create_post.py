@@ -25,6 +25,14 @@ async def create_post(call: CallbackQuery, state: FSMContext, log: Logger):
 @router.message(CreatePostState.text)
 async def prepare_send_post(message: Message, state: FSMContext, log: Logger):
     log.info(f"Текст рекламной рассылки '{message.text}'")
+    if message.caption is not None:
+        if len(message.caption) > 1024:
+            await message.answer(texts.error_head + "Слишком длинное описание")
+            return
+    elif message.text is not None:
+        if len(message.text) > 4096:
+            await message.answer(texts.error_head + "Слишком длинное сообщение")
+            return
     await state.update_data(create_post_msg_id=message.message_id)
     await state.set_state(CreatePostState.prepared)
     await message.bot.copy_message(message.chat.id, message.from_user.id, message.message_id,
