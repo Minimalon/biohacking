@@ -27,11 +27,11 @@ async def prepare_send_post(message: Message, state: FSMContext, log: Logger):
     log.info(f"Текст рекламной рассылки '{message.text}'")
     if message.caption is not None:
         if len(message.caption) > 1024:
-            await message.answer(texts.error_head + "Слишком длинное описание")
+            await message.answer(texts.error_head + f"Слишком длинное описание. Укоротите на {len(message.caption) - 1024} символов")
             return
     elif message.text is not None:
         if len(message.text) > 4096:
-            await message.answer(texts.error_head + "Слишком длинное сообщение")
+            await message.answer(texts.error_head + f"Слишком длинное сообщение. Укоротите на {len(message.caption) - 4096} символов")
             return
     await state.update_data(create_post_msg_id=message.message_id)
     await state.set_state(CreatePostState.prepared)
