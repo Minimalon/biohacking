@@ -84,6 +84,10 @@ class ForemanConfig(BaseConfig):
     USERNAME_18: str
     PASSWORD_18: str
 
+class OpenAIConfig(BaseConfig):
+    model_config = SettingsConfigDict(env_prefix='OPENAI_')
+
+    TOKEN: str
 
 cs_cfg = CashServerConfig()
 db_cfg = DatabaseConfig()
@@ -91,3 +95,4 @@ tg_cfg = TelegramConfig()
 redis_cfg = RedisConfig()
 foreman_cfg = ForemanConfig()
 artixcash_db_cfg = ArtixCashDatabaseConfig()
+openai_cfg = OpenAIConfig()

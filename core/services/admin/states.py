@@ -41,3 +41,8 @@ class ChangeProductState(StatesGroup):
     code = State()
     description = State()
     title = State()
+
+
+class SendBonusState(StatesGroup):
+    idcard = State()
+    award = State()

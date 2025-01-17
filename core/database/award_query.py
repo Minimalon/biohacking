@@ -61,7 +61,12 @@ class AwardQuery(Database):
 
 async def test():
     aq = AwardQuery()
-    print(await aq.get_reg_award_by_user_id(5263751490) is None)
+    await aq.add_registration_award(
+        RegistrationAssets(
+            user_id=5263751490,
+            amount=100 * 100
+        )
+    )
 
 if __name__ == '__main__':
     asyncio.run(test())

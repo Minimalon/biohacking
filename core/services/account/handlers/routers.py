@@ -7,6 +7,7 @@ from .orders.current_orders import router as current_orders_routers
 from .need_help import router as need_help_routers
 from .energy_guide import router as energy_guide_routers
 from .referals import router as referals_routers
+from .gpt import router as gpt_routers
 
 routers = [
     msg_routers,
@@ -18,4 +19,5 @@ routers = [
     current_orders_routers,
     energy_guide_routers,
     referals_routers,
+    gpt_routers,
 ]
