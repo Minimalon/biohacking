@@ -14,6 +14,7 @@ def kb_account() -> InlineKeyboardMarkup:
     keyboard.button(text='Получить подарок!', callback_data='energy_guide')
     keyboard.button(text='Бонусные баллы', callback_data='bonus_card')
     keyboard.button(text='Партнерская программа', callback_data='referals_program')
+    keyboard.button(text='База знаний', callback_data='dialog_gpt')
     keyboard.button(text='Оформить заказ', url='https://bogonaft.com')
     keyboard.button(text='Купить Франшизу!', url='https://bogonaft.com/franchise')
     keyboard.button(text='Информация о нашей команде', url='https://bogonaft.com/team')
@@ -130,3 +131,8 @@ def kb_energy_guide() -> InlineKeyboardMarkup:
     keyboard.adjust(1)
     return keyboard.as_markup()
 
+def kb_gpt() -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.button(text='Закончить диалог', callback_data='stop_gpt_dialog')
+    keyboard.adjust(1)
+    return keyboard.as_markup()

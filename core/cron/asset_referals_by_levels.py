@@ -103,6 +103,7 @@ async def asset_referals_by_levels(start_datetime: datetime, end_datetime: datet
                     f'➖<b>Номер карты</b>: {asset.cardNumber}\n'
                     f'➖<b>Имя</b>: {client.first_name}\n'
                     f'➖<b>Телефон</b>: {client.phone_number}\n'
+                    # f'➖<b>Уровень</b>: {[l.level for l, a in notify if l.user_id == asset.cardNumber][0]}\n'
                     '➖➖➖➖➖➖➖➖\n'
                 )
 

@@ -9,6 +9,8 @@ class AwardsType(enum.Enum):
     REGISTRATION = "Регистрация в боте"
     REFERAL_SYSTEM = "Реферальная система"
     ENERGY_GUIDE = "Реферальная система"
+    EMPLOYEE_MONTH_AWARD = "Ежемесячная премия сотрудника"
+    ADMIN_AWARD = "Начисление бонусов через админ панель телеграм бота"
 
 
 class AssetType(enum.Enum):
