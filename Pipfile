@@ -46,6 +46,7 @@ yarl = "==1.9.4"
 apscheduler = "*"
 celery = "*"
 amqp = "*"
+pipfile = "*"
 g4f = "*"
 
 [dev-packages]
