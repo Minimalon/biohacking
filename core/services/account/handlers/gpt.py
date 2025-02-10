@@ -22,7 +22,7 @@ async def dialog_gpt(call: CallbackQuery, log: Logger, state: FSMContext):
     await state.update_data(gpt_messages=await chatgpt.get_messages())
     await state.set_state(GPTDialogState.wait_answer)
     await call.message.delete()
-    await call.message.answer(texts.gpt_to_user_start_msg, reply_markup=inline.kb_gpt())
+    await call.message.answer(texts.gpt_to_user_start_msg)
 
 
 @router.message(GPTDialogState.wait_answer)
@@ -40,6 +40,7 @@ async def wait_answer(message: Message, log: Logger, state: FSMContext):
     log.info(f'Ответ: {answer}')
     await state.update_data(gpt_messages=await chatgpt.get_messages())
     await message.answer(texts.answer_gpt_head + answer, reply_markup=inline.kb_gpt(), parse_mode=ParseMode.MARKDOWN)
+    await state.clear()
 
 
 @router.callback_query(F.data == 'stop_gpt_dialog')

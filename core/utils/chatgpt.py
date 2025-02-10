@@ -69,13 +69,11 @@ class ChatGPTIntegration:
     async def send_message(self, message: GPTMessage) -> Optional[str]:
         await self.add_message(message)
         try:
-            print(self.messages)
             response = await self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[m.dict() for m in self.messages],
                 web_search=True
             )
-            print(response)
             assistant_content = response.choices[0].message.content
             assistant_message = GPTMessage(
                 role=GPTRole.ASSISTANT,
