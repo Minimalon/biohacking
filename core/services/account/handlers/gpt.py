@@ -22,7 +22,7 @@ async def dialog_gpt(call: CallbackQuery, log: Logger, state: FSMContext):
     await state.update_data(gpt_messages=await chatgpt.get_messages())
     await state.set_state(GPTDialogState.wait_answer)
     await call.message.delete()
-    await call.message.answer(texts.gpt_to_user_start_msg, reply_markup=inline.kb_gpt())
+    await call.message.answer(texts.gpt_to_user_start_msg)
 
 
 @router.message(GPTDialogState.wait_answer)
