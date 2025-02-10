@@ -133,6 +133,6 @@ def kb_energy_guide() -> InlineKeyboardMarkup:
 
 def kb_gpt() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
-    keyboard.button(text='Закончить диалог', callback_data='stop_gpt_dialog')
+    keyboard.button(text='Задать следующий вопрос', callback_data='dialog_gpt')
     keyboard.adjust(1)
     return keyboard.as_markup()

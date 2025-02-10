@@ -40,6 +40,7 @@ async def wait_answer(message: Message, log: Logger, state: FSMContext):
     log.info(f'Ответ: {answer}')
     await state.update_data(gpt_messages=await chatgpt.get_messages())
     await message.answer(texts.answer_gpt_head + answer, reply_markup=inline.kb_gpt(), parse_mode=ParseMode.MARKDOWN)
+    await state.clear()
 
 
 @router.callback_query(F.data == 'stop_gpt_dialog')
