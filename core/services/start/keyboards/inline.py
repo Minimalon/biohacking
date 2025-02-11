@@ -22,6 +22,7 @@ def kb_sex() -> InlineKeyboardMarkup:
 
 def kb_start() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
+    keyboard.button(text='История операций📋', callback_data='client_history_assets')
     keyboard.button(text='Обновить информацию🔄', callback_data='update_start_menu')
     keyboard.adjust(1)
     return keyboard.as_markup()
