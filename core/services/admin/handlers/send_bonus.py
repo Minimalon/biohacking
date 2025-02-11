@@ -44,7 +44,7 @@ async def send_bonuses_award(message: Message, state: FSMContext, log: Logger):
     cs = CS()
     response = await cs.post_asset(Asset(
         cardNumber=data.get('idcard_award'),
-        amount=message.text,
+        amount=int(message.text) * 100,
         type=AssetType.ADD,
         additionalInfo={
             'type': AwardsType.ADMIN_AWARD
@@ -52,7 +52,7 @@ async def send_bonuses_award(message: Message, state: FSMContext, log: Logger):
     ))
     if response.ok:
         await message.answer(
-            texts.success_head + f'Успешно зачислено {message.text} бонусов клиенту на карту {data.get("idcard_award")}')
+            texts.success_head + f'Успешно зачислено {message.text} рублей клиенту на карту {data.get("idcard_award")}')
         log.success(f'Успешно зачислено {message.text} бонусов клиенту на карту {data.get("idcard_award")}')
     else:
         await message.answer(f"{texts.error_head}Бонусы не были зачислены\n{await response.text()}")
