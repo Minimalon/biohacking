@@ -6,6 +6,7 @@ from .set_admin import router as set_admin_router
 from .operation_catalogs.catalogs import router as catalogs_router
 from .operation_catalogs.products import router as products_router
 from .orders_list import router as orders_list_router
+from .send_bonus import router as send_bonus_router
 
 admin_routers = [
     admin_routers,
@@ -16,4 +17,5 @@ admin_routers = [
     catalogs_router,
     products_router,
     orders_list_router,
+    send_bonus_router,
 ]

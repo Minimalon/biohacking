@@ -32,7 +32,7 @@ async def main():
               ))
     storage = RedisStorage.from_url(await RedisConfig().url())
     dp = Dispatcher(storage=storage)
-    await bot.set_my_commands(client_commands, BotCommandScopeDefault())
+    await bot.set_my_commands([], BotCommandScopeDefault())
     await set_commands_all_users(bot)
 
     # CRON
