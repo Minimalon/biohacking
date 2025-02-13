@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardMarkup, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from core.database.model import TmcCatalog, HelpTicketStatus, HelpTicket, Clients, OrderStatus, Orders, WorkHelpTicket
@@ -17,6 +17,7 @@ def kb_account() -> InlineKeyboardMarkup:
     keyboard.button(text='База знаний - Нейросеть ИИ 🤖', callback_data='dialog_gpt')
     keyboard.button(text='Оформить заказ', url='https://bogonaft.com')
     keyboard.button(text='Купить Франшизу!', url='https://bogonaft.com/franchise')
+    keyboard.button(text='Каталог 🛍', web_app=WebAppInfo(url='https://chatmarket.io/webapp/509/items'))
     # keyboard.button(text='Информация о нашей команде', url='https://bogonaft.com/team')
     keyboard.adjust(1)
     return keyboard.as_markup()
