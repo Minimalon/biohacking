@@ -23,13 +23,16 @@ class ReferralQuery(Database):
     def __init__(self):
         super().__init__()
 
-    async def get_all_referrals_by_level(self, root_user_id: int) -> List[ReferralsByLevel] | None:
+    async def get_all_referrals_by_level(
+        self, root_user_id: int
+    ) -> List[ReferralsByLevel] | None:
         """
         Получение всех рефералов для заданного пользователя и всех уровней ниже, включая расчет комиссий.
         """
         async with self.AsyncSession() as session:
             # SQL-запрос с использованием CTE для получения всех рефералов и расчета комиссий
-            stmt = text("""
+            stmt = text(
+                """
                 WITH RECURSIVE referral_tree(user_id, ref_id, level, commission_rate) AS (
                     SELECT 
                         user_id, 
@@ -46,8 +49,6 @@ class ReferralQuery(Database):
                         CASE 
                             WHEN rt.level + 1 = 2 THEN 0.03  -- Комиссия для 2-го уровня: 3%
                             WHEN rt.level + 1 = 3 THEN 0.02  -- Комиссия для 3-го уровня: 2%
-                            WHEN rt.level + 1 = 4 THEN 0.01  -- Комиссия для 4-го уровня: 1%
-                            WHEN rt.level + 1 BETWEEN 5 AND 10 THEN 0.005  -- Комиссия для уровней 5-10: 0.5%
                             ELSE 0  -- Комиссия для уровней выше 10: 0%
                         END AS commission_rate
                     FROM referrals r
@@ -55,9 +56,12 @@ class ReferralQuery(Database):
                 )
                 SELECT user_id, ref_id, level, commission_rate
                 FROM referral_tree
-            """)
+            """
+            )
+            # WHEN rt.level + 1 = 4 THEN 0.01  -- Комиссия для 4-го уровня: 1%
+            # WHEN rt.level + 1 BETWEEN 5 AND 10 THEN 0.005  -- Комиссия для уровней 5-10: 0.5%
 
-            result = await session.execute(stmt, {'root_user_id': root_user_id})
+            result = await session.execute(stmt, {"root_user_id": root_user_id})
             return [ReferralsByLevel(*row) for row in result.fetchall()]
 
     async def get_all_referrals_by_user(self, user_id: int) -> List[Referrals] | None:
@@ -65,17 +69,20 @@ class ReferralQuery(Database):
         Получение всех рефералов для заданного пользователя.
         """
         async with self.AsyncSession() as session:
-            result = await session.execute(select(Referrals).where(Referrals.ref_id == user_id))
+            result = await session.execute(
+                select(Referrals).where(Referrals.ref_id == user_id)
+            )
             return result.scalars().all()
 
-    async def get_user_refs_by_date(self, start_date: date, end_date: date, user_id: int) -> List[Referrals]:
+    async def get_user_refs_by_date(
+        self, start_date: date, end_date: date, user_id: int
+    ) -> List[Referrals]:
         async with self.AsyncSession() as session:
             result = await session.execute(
-                select(Referrals)
-                .where(
-                    and_(Referrals.date <= start_date,
-                         Referrals.date >= end_date),
-                    Referrals.ref_id == user_id)
+                select(Referrals).where(
+                    and_(Referrals.date <= start_date, Referrals.date >= end_date),
+                    Referrals.ref_id == user_id,
+                )
             )
             return result.scalars().all()
 
@@ -87,16 +94,22 @@ class ReferralQuery(Database):
 
     async def delete_double_referrals(self) -> None:
         async with self.AsyncSession() as session:
-            await session.execute(delete(Referrals).where(Referrals.ref_id == Referrals.user_id))
+            await session.execute(
+                delete(Referrals).where(Referrals.ref_id == Referrals.user_id)
+            )
             await session.commit()
 
 
 async def main():
     ref_db = ReferralQuery()
     date_now = date.today()
-    refs_today = await ref_db.get_user_refs_by_date(date_now, date_now - timedelta(days=1), 5263751490)
+    refs_today = await ref_db.get_user_refs_by_date(
+        date_now, date_now - timedelta(days=1), 5263751490
+    )
     for ref in refs_today:
         print(ref.date)
+
+
 async def test_levels():
     ref_db = ReferralQuery()
     refers = await ref_db.get_all_referrals_by_level(447062998)
@@ -105,7 +118,5 @@ async def test_levels():
         print(ref.user_id, ref.ref_id, ref.level, ref.commission_rate)
 
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(test_levels())
