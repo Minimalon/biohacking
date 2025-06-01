@@ -1,8 +1,9 @@
 import enum
+import uuid
 from datetime import datetime
 from typing import Union, Dict, List
 from uuid import uuid4, UUID
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class AwardsType(enum.Enum):
@@ -22,50 +23,52 @@ class AssetType(enum.Enum):
 
 
 class AssetState(enum.Enum):
-    NON_CONFIRMED = 'NON_CONFIRMED'  # транзакция начата
-    COMMITED = 'COMMITED'  # транзакция подтверждена
-    CANCELLED = 'CANCELLED'  # транзакция отменена
+    NON_CONFIRMED = "NON_CONFIRMED"  # транзакция начата
+    COMMITED = "COMMITED"  # транзакция подтверждена
+    CANCELLED = "CANCELLED"  # транзакция отменена
 
 
 class Client(BaseModel):
-    idclient: Union[str, int] = Field('', title='Идентификатор клиента')
-    name: str = Field('', title='ФИО')
-    text: str | None = Field(None, title='Текст')
-    sex: int | None = Field(None, title='0 - мужской, 1 - женский')
-    birthday: str | None = Field(None, title='Дата рождения')
-    specialdate1name: str | None = Field(None, title='Название даты 1')
-    specialdate2name: str | None = Field(None, title='Название даты 2')
-    specialdate3name: str | None = Field(None, title='Название даты 3')
-    zipcode: str | None = Field(None, title='Почтовый индекс')
-    address: str | None = Field(None, title='Адрес')
-    email: str | None = Field(None, title='Электронная почта')
-    webpage: str | None = Field(None, title='Сайт')
-    phonenumber: str = Field(None, title='Номер телефона')
-    inn: str | None = Field(None, title='ИНН')
-    document: str | None = Field(None, title='Документ')
-    okpo: str | None = Field(None, title='ОКПО')
-    okpd: str | None = Field(None, title='ОКПД')
-    occupation: str | None = Field(None, title='Профессия')
-    extendedoptions: str | None = Field(None, title='Расширенные параметры')
-    codeword: str | None = Field(None, title='Кодовое слово')
-    organizationcode: str | None = Field(None, title='Код организации')
-    subscriptionadj: int | None = Field(None, title='Поиск по согласию на рассылку	0 - нет, 1 - да')
+    idclient: Union[str, int] = Field("", title="Идентификатор клиента")
+    name: str = Field("", title="ФИО")
+    text: str | None = Field(None, title="Текст")
+    sex: int | None = Field(None, title="0 - мужской, 1 - женский")
+    birthday: str | None = Field(None, title="Дата рождения")
+    specialdate1name: str | None = Field(None, title="Название даты 1")
+    specialdate2name: str | None = Field(None, title="Название даты 2")
+    specialdate3name: str | None = Field(None, title="Название даты 3")
+    zipcode: str | None = Field(None, title="Почтовый индекс")
+    address: str | None = Field(None, title="Адрес")
+    email: str | None = Field(None, title="Электронная почта")
+    webpage: str | None = Field(None, title="Сайт")
+    phonenumber: str = Field(None, title="Номер телефона")
+    inn: str | None = Field(None, title="ИНН")
+    document: str | None = Field(None, title="Документ")
+    okpo: str | None = Field(None, title="ОКПО")
+    okpd: str | None = Field(None, title="ОКПД")
+    occupation: str | None = Field(None, title="Профессия")
+    extendedoptions: str | None = Field(None, title="Расширенные параметры")
+    codeword: str | None = Field(None, title="Кодовое слово")
+    organizationcode: str | None = Field(None, title="Код организации")
+    subscriptionadj: int | None = Field(
+        None, title="Поиск по согласию на рассылку	0 - нет, 1 - да"
+    )
 
 
 class CardBalance(BaseModel):
-    number: str | int = Field('', title='Номер карты')
-    accountNumber: str | int = Field('', title='Номер счета')
-    status: str = Field('', title='Статус карты')
-    balance: int = Field(0, title='Баланс')
+    number: str | int = Field("", title="Номер карты")
+    accountNumber: str | int = Field("", title="Номер счета")
+    status: str = Field("", title="Статус карты")
+    balance: int = Field(0, title="Баланс")
     balanceInactive: int = Field(0)
 
 
 class CardInfo(BaseModel):
-    idcard: int | str = Field('', title='Идентификатор карты')
-    idcardgroup: int = Field(2, title='Идентификатор группы карт')
-    idclient: int | str = Field('', title='Идентификатор клиента')
-    number: int | str = Field('', title='Номер карты')
-    blocked: int = Field(0, title='Заблокирована')
+    idcard: int | str = Field("", title="Идентификатор карты")
+    idcardgroup: int = Field(2, title="Идентификатор группы карт")
+    idclient: int | str = Field("", title="Идентификатор клиента")
+    number: int | str = Field("", title="Номер карты")
+    blocked: int = Field(0, title="Заблокирована")
 
 
 class Asset(BaseModel):
@@ -75,7 +78,9 @@ class Asset(BaseModel):
 
     amount: int = Field(..., description="Сумма в копейках")
     cardNumber: str = Field(..., description="Номер карты")
-    sessionId: Union[str] = Field(description="Уникальный идентификатор операции", default_factory=uuid4)
+    sessionId: Union[str] = Field(
+        description="Уникальный идентификатор операции", default_factory=uuid4
+    )
     acceptId: Union[str, None] = Field(
         None,
         description="Идентификатор, по которому устанавливались временные ограничения действия бонусов",
@@ -85,7 +90,7 @@ class Asset(BaseModel):
         description="Число, указывающее порядок применения начислений данной транзакции - операции с большим числом будут иметь приоритет при операциях списывания",
     )
     additionalInfo: Dict[str, str] = Field(
-        {'comment': ''},
+        {"comment": ""},
         description="Дополнительная информация об операции, полезна для анализа",
     )
     timeBeginAccept: Union[datetime, None] = Field(
@@ -105,11 +110,11 @@ class Asset(BaseModel):
     )
     type: AssetType = Field(..., description="Тип операции")
 
-    @field_validator("cardNumber", mode='before')
+    @field_validator("cardNumber", mode="before")
     def transform_int_to_str(cls, value) -> str:
         return str(value)
 
-    @field_validator("amount", mode='before')
+    @field_validator("amount", mode="before")
     def transform_to_intr(cls, value) -> int:
         return int(value)
 
@@ -124,6 +129,7 @@ class AssetTransaction(BaseModel):
 
 class AssetExtended(BaseModel):
     """Данные об операции"""
+
     acceptId: Union[str, None] = Field(
         None,
         description="Идентификатор, по которому устанавливались временные ограничения действия бонусов",
@@ -133,13 +139,10 @@ class AssetExtended(BaseModel):
         description="Число, указывающее порядок применения начислений данной транзакции - операции с большим числом будут иметь приоритет при операциях списывания",
     )
     additionalInfo: Dict[str, str] = Field(
-        {'comment': ''},
+        {"comment": ""},
         description="Дополнительная информация об операции, полезна для анализа",
     )
-    accountNumber: str = Field(
-        ...,
-        description="Номер счета"
-    )
+    accountNumber: str = Field(..., description="Номер счета")
     amount: int = Field(
         ...,
         description="Сумма в копейках",
@@ -160,8 +163,8 @@ class AssetExtended(BaseModel):
         None,
         description="Последний источник операции",
     )
-    sessionId: Union[str] = Field(
-        description="Уникальный идентификатор операции",
+    sessionId: Union[str, None] = Field(  # Делаем поле опциональным
+        default=None, description="Уникальный идентификатор операции"
     )
     state: AssetState = Field(
         ...,
@@ -195,10 +198,18 @@ class AssetExtended(BaseModel):
         description="Тип операции",
     )
 
+    @model_validator(mode="before")
+    @classmethod
+    def validate_session_id(cls, data):
+        """Генерируем sessionId если он отсутствует"""
+        if "sessionId" not in data or not data["sessionId"]:
+            data["sessionId"] = f"GENERATED_{uuid.uuid4().hex[:10]}"
+        return data
 
-if __name__ == '__main__':
-    print(Asset(
-        type=AssetType.ADD,
-        amount=100,
-        cardNumber='123'
-    ).model_dump_json(exclude_none=True))
+
+if __name__ == "__main__":
+    print(
+        Asset(type=AssetType.ADD, amount=100, cardNumber="123").model_dump_json(
+            exclude_none=True
+        )
+    )

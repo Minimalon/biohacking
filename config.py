@@ -5,27 +5,28 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-if os.name == 'posix':
-    DEVELOPE_MODE = os.getenv('DEVELOPE_MODE', 'False') == 'True'
+if os.name == "posix":
+    DEVELOPE_MODE = os.getenv("DEVELOPE_MODE", "False") == "True"
 else:
-    DEVELOPE_MODE = True
+    DEVELOPE_MODE = False
+
 
 class BaseConfig(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=Path(dir_path, '.dev_env' if DEVELOPE_MODE else '.prod_env'),
-        env_file_encoding='utf-8',
-        extra='ignore',
+        env_file=Path(dir_path, ".dev_env" if DEVELOPE_MODE else ".prod_env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
 
 class TelegramConfig(BaseConfig):
-    model_config = SettingsConfigDict(env_prefix='TG_')
+    model_config = SettingsConfigDict(env_prefix="TG_")
 
     TOKEN: str
 
 
 class DatabaseConfig(BaseConfig):
-    model_config = SettingsConfigDict(env_prefix='DB_')
+    model_config = SettingsConfigDict(env_prefix="DB_")
 
     HOST: str
     PORT: int
@@ -38,7 +39,7 @@ class DatabaseConfig(BaseConfig):
 
 
 class ArtixCashDatabaseConfig(BaseConfig):
-    model_config = SettingsConfigDict(env_prefix='ARTIXCASH_DB_')
+    model_config = SettingsConfigDict(env_prefix="ARTIXCASH_DB_")
 
     PORT: int
     USER: str
@@ -49,17 +50,17 @@ class ArtixCashDatabaseConfig(BaseConfig):
 
 
 class RedisConfig(BaseConfig):
-    model_config = SettingsConfigDict(env_prefix='REDIS_')
+    model_config = SettingsConfigDict(env_prefix="REDIS_")
 
     HOST: str
     PORT: int
 
     async def url(self):
-        return f'redis://{self.HOST}:{self.PORT}'
+        return f"redis://{self.HOST}:{self.PORT}"
 
 
 class CashServerConfig(BaseConfig):
-    model_config = SettingsConfigDict(env_prefix='CS_')
+    model_config = SettingsConfigDict(env_prefix="CS_")
 
     HOST: str
     PORT: int
@@ -67,14 +68,14 @@ class CashServerConfig(BaseConfig):
     PASSWORD: str
 
     def cs_url(self):
-        return f'http://{self.HOST}:{self.PORT}/CSrest/rest'
+        return f"http://{self.HOST}:{self.PORT}/CSrest/rest"
 
     def acc_url(self):
-        return f'http://{self.HOST}:{self.PORT}/ACC/rest/v1'
+        return f"http://{self.HOST}:{self.PORT}/ACC/rest/v1"
 
 
 class ForemanConfig(BaseConfig):
-    model_config = SettingsConfigDict(env_prefix='FOREMAN_')
+    model_config = SettingsConfigDict(env_prefix="FOREMAN_")
 
     URL_14: str
     USERNAME_14: str
@@ -84,10 +85,12 @@ class ForemanConfig(BaseConfig):
     USERNAME_18: str
     PASSWORD_18: str
 
+
 class OpenAIConfig(BaseConfig):
-    model_config = SettingsConfigDict(env_prefix='OPENAI_')
+    model_config = SettingsConfigDict(env_prefix="OPENAI_")
 
     TOKEN: str
+
 
 cs_cfg = CashServerConfig()
 db_cfg = DatabaseConfig()

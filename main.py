@@ -13,7 +13,11 @@ from core.cron.registration_assets import registration_assets
 from core.database.model import init_models
 from config import *
 from core.loggers.make_loggers import create_loggers
-from core.middlewares.add_var import CallBackMiddleware, MessageMiddleware, ErrorEventMiddleware
+from core.middlewares.add_var import (
+    CallBackMiddleware,
+    MessageMiddleware,
+    ErrorEventMiddleware,
+)
 from core.services.admin.handlers.routers import admin_routers
 from core.services.checklist.handlers.routers import checklist_routers
 from core.services.referals.handlers.routers import referals_routers
@@ -26,21 +30,18 @@ from core.services.account.handlers.routers import routers as account_routers
 async def main():
     await init_models()
     await create_loggers()
-    bot = Bot(token=tg_cfg.TOKEN,
-              default=DefaultBotProperties(
-                  parse_mode='HTML'
-              ))
+    bot = Bot(token=tg_cfg.TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
     storage = RedisStorage.from_url(await RedisConfig().url())
     dp = Dispatcher(storage=storage)
     await bot.set_my_commands([], BotCommandScopeDefault())
-    await set_commands_all_users(bot)
+    # await set_commands_all_users(bot)
 
     # CRON
     if not DEVELOPE_MODE:
-        scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
-        scheduler.add_job(referals_main, 'cron', hour='10', minute='0')
-        scheduler.add_job(registration_assets, 'cron', hour='11, 16', minute='0')
-        scheduler.add_job(notify_assets, 'cron', minute='*')
+        scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+        scheduler.add_job(referals_main, "cron", hour="10", minute="0")
+        scheduler.add_job(registration_assets, "cron", hour="11, 16", minute="0")
+        scheduler.add_job(notify_assets, "cron", minute="*")
         scheduler.start()
 
     # Мидлвари
@@ -65,7 +66,7 @@ async def main():
     dp.include_routers(*checklist_routers)
 
     if DEVELOPE_MODE:
-        await bot.send_message(5263751490, 'Бот запущен в режиме разработчика')
+        await bot.send_message(5263751490, "Бот запущен в режиме разработчика")
 
     await dp.start_polling(bot)
 
